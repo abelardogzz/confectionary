@@ -1,0 +1,55 @@
+program prueba : 
+var int inUno= -3; 
+var int inTres= 4;
+ 
+	float[5] arr = {1.5,2.0};
+	float[5][2] mat = {9.5,3.8,4.6};  
+	int[5][2] matint = {20,25,43,45};
+	string[5][2] matstr = {"hola","byebye"};
+	int[3] pex = {1,2,3}; 
+	string[3] nono = {"si","no","aja"};
+	var float r2D2=2.2;
+	var bool siempre = yes;
+
+var string cosa = "hola";
+recipe int funcionPrueba(int name, int[] yolo, int age){ 
+	 return(5); 
+	
+};	
+
+recipe int funcionDos(int param1){ 
+	show("no"); return(param1); 
+};
+
+recipe void funciontres(string frase){   };
+
+confectionary(){
+	var int myVar= 10;
+	var int newVar = 12;
+	var string newString = "HolaMundo";
+	
+	ration(4* inTres);
+
+	flavor(2,3,4);
+
+
+	repeat(3<inTres){
+		ration(4);
+	};
+	
+
+
+	if(inUno < inTres){
+		inTres = 20;
+	}
+	else{
+		show(inTres*4);
+		r2D2 = 4.5;
+
+	};
+
+	make{
+	read();
+	}repeat(3<10);
+	
+}
