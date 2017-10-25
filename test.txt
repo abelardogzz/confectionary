@@ -1,3 +1,4 @@
+
 program prueba : 
 var int inUno= -3; 
 var int inTres= 4;
@@ -13,25 +14,43 @@ var int inTres= 4;
 
 var string cosa = "hola";
 recipe int funcionPrueba(int name, int[] yolo, int age){ 
+	var int inCuatro= 5;
+	name = 2 + 3;
+	show("si");
+	show("hola!");
 	 return(5); 
 	
 };	
 
-recipe int funcionDos(int param1){ 
-	show("no"); return(param1); 
+recipe int funcionDos(int param1, float name, float anotherNmae){ 
+	show("no"); return(3+3); 
 };
 
-recipe void funciontres(string frase){   };
+recipe void funciontres(string frase){  
+	var int inSiete= 7;
+	show("hola!");
+ };
+
+ recipe void funCuatro(){
+	
+ };
 
 confectionary(){
 	var int myVar= 10;
-	var int newVar = 12;
+	var int newVar = 2.1;
 	var string newString = "HolaMundo";
 	
-	ration(4* inTres);
 
-	flavor(2,3,4);
 
+	inUno =  9 + inTres - 5;
+	inTres = 9*3;
+	r2D2 = 3.4 + (3 + 4);
+
+	
+	inUno = funcionDos(5,2.1,2.1);
+	funciontres("try me!");
+
+	funCuatro();
 
 	repeat(3<inTres){
 		ration(4);
@@ -48,8 +67,10 @@ confectionary(){
 
 	};
 
-	make{
 	read();
-	}repeat(3<10);
+
+	make{
+		ration(6);
+	}repeat(6<inUno);
 	
 }

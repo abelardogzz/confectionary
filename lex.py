@@ -68,7 +68,7 @@ def t_CTEINT(t):
     return t
 
 def t_CTESTRING(t):
-    r'[\"a-zA-Z0-9| ]+\"'
+    r'[\"a-zA-Z0-9| |!]+\"'
     t.type = reserved.get(t.value, 'CTESTRING')
     return t
 

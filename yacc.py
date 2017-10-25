@@ -43,6 +43,7 @@ GlobalConst = "Const-"
 context = "global"
 arrayContent = list()
 matrixContent = list()
+globalk = ""
 
 #Stacks
 #POper - operandos
@@ -97,7 +98,9 @@ def p_main(p):
 def p_seen_CNFCTNR(p):
     '''seen_CNFCTNR :'''
     global context
+    global quads
     context = "confectionary"
+    quads[0][3]= quads[0][3].replace("_____", str(len(quads)))
     #print("context: " + context)
     pass
 
@@ -190,7 +193,9 @@ def p_recipedef(p):
 
 def p_seen_endproc(p):
   '''seen_endproc :'''
-  #AQUI SE VA A PONER LA FUNCION DE ENDPROC CUANDO VEAMOS LO DE LIBERAR MEMORIA
+  global quads
+  quad = ["retorno","","",""]
+  quads = quads + [quad]
   pass
 
 def p_brecipeaux(p):
@@ -322,8 +327,15 @@ def p_type_matrix(p):
 
 
 def p_recipereturn(p):
-  '''recipereturn : ctevar
-  | ID'''
+  '''recipereturn : exp'''
+  global TypeStack
+  global incrementalNumberFun
+  returnValueType = TypeStack[-1]
+  index = str(incrementalNumberFun-1)
+  ModuleReturnType = DiModules["FunId-"+index][1]
+  if returnValueType != ModuleReturnType:
+    print("Return type mismtach in function ", DiModules["FunId-"+index][0])
+    exit(0)
   #print("recipereturn");
   pass
 
@@ -414,7 +426,7 @@ def p_vars(p):
     #'''vars : VAR TIPO ID "=" VAL ";" '''
     #print("vars",p[2],p[3]);
     x = type_to_programType(p[5])
-    print ("x ! -" , x)
+    #print ("x ! -" , x)
     if p[2] != x:
         print("Type mismatch! in ", p[5])
         exit(0)
@@ -878,32 +890,97 @@ def p_seen_pn_read(p):
     pass
 
 def p_funccall(p):
-    ''' funccall : ID "(" bfunccall ")" ";" '''
-    #print("funccall"); 
+    ''' funccall : ID seen_funcall_id "(" bfunccall ")" ";" seen_funcall_end'''
+    print("ended funccall"); 
     pass
 
+def p_seen_funcall_end(p):
+  '''seen_funcall_end :'''
+  global quads
+  global globalk
+  quad = ["Gosub", DiModules[globalk][0], DiModules[globalk][6], "" ]
+  quads = quads + [quad]
+  pass
+
+def p_seen_funcall_id(p):
+  '''seen_funcall_id :'''
+  global quads
+  thisk = ""
+  existingFunction = False
+  for k, v in DiModules.items():
+    if p[-1] == v or isinstance(v, list) and p[-1] in v:
+      thisk = k
+      print("La función ",thisk, " si existe!")
+      existingFunction = True
+      
+  print("Seen fun call")
+  if not existingFunction:
+    print("Non-existing function: ", p[-1])
+    exit(0)
+  if existingFunction:
+    #quad = ["era", DiModules[k][0],DiModules[k][4],""]
+    quad = ["era", DiModules[thisk][0],DiModules[thisk][4],""]
+    quads = quads + [quad]
+  p[0] = thisk
+  global globalk
+  globalk=thisk
+  global auxCont
+  auxCont = 0
+  pass
+
 def p_bfunccall(p):
-    ''' bfunccall : exp 
-  | exp bfunccallaux
+    ''' bfunccall : exp seen_exp_in_params
+  | exp seen_exp_in_params bfunccallaux
   | empty '''
+
     #print("bfunccall"); 
     pass
 
 def p_bfunccallaux(p):
-    ''' bfunccallaux : "," exp bfunccallaux
+    ''' bfunccallaux : "," exp seen_exp_in_params bfunccallaux
   | empty '''
     #print("bfunccallaux"); 
     pass
 
+def p_seen_exp_in_params(p):
+  '''seen_exp_in_params :'''
+  global globalk
+  global auxCont
+  global PilaO
+  global TypeStack
+  global quads
+  numberOfParams = DiModules[globalk][2]
+  if numberOfParams == 0 or (numberOfParams-1) < auxCont:
+    print("The number of parameters is incorrect")
+    exit(0)
+  else:
+    moduleParamType = DiModules[globalk][3][auxCont]
+    #print("param type - ", paramType)
+    localParamType = TypeStack.pop()
+    argument = PilaO.pop()
+    if moduleParamType != localParamType:
+      print("Type mismatch in parameter ", auxCont + 1, " in function ", DiModules[globalk][0])
+      exit(0)
+    else:
+      quad = ["PARAM",argument,"param"+str(auxCont)]
+      quads = quads + [quad]
+      auxCont +=1
+  pass
 
 def p_assignment(p):
-    '''assignment : ID  "=" seen_pn_ass_id bassignment ";" seen_pn_assign'''
+    '''assignment : ID  "=" seen_pn_ass_id exp ";" seen_pn_assign
+    | ID "=" seen_pn_ass_id funccall seen_pn_assign'''
     #print("assignment")
     pass
 
+#def p_seen_ok(p):
+#    '''seen_ok :'''
+#    print("si vi el funccall")
+#    pass
+
 def p_seen_pn_ass_id(p):
     '''seen_pn_ass_id :'''
-    print("id es : " + str(p[-1]))
+    #print("id es : " + str(p[-1]))
     idName = str(p[-2]).replace(" ", "")
 
     global context
@@ -912,11 +989,10 @@ def p_seen_pn_ass_id(p):
     for k, v in DiVars.items():
         if idName == v or isinstance(v, list) and idName in v:
             addToPilaO = True
-            print("khakha+",addToPilaO)
+            #print("khakha+",addToPilaO)
             varContext = DiVars[k][3]
             if varContext == context or varContext == "global":
-                print("el primero lugar donde deberia meterlo a la pila")
-                print("addtoila  -",addToPilaO)
+                #print("addtoila  -",addToPilaO)
                 global PilaO
                 PilaO =  PilaO + [idName]
                 global TypeStack
@@ -952,11 +1028,11 @@ def p_seen_pn_assign(p):
             exit(0)
     pass
 
-def p_bassignment(p):
-    '''bassignment : exp
-  | funccall'''
-    #print("bassignment")
-    pass
+#def p_bassignment(p):
+#    '''bassignment : exp
+#  | funccall'''
+#    print("ended bassignment")
+#    pass
 
 
 def p_write(p):
@@ -976,7 +1052,7 @@ def p_seen_pn_show(p):
     global PilaO
     left_operand = PilaO.pop()
     left_Type = TypeStack.pop()
-    print("DATOSssss",left_operand,left_Type)
+    #print("DATOSssss",left_operand,left_Type)
     dir = "t" + str(availTemp)
     availTemp = availTemp + 1
     quad = ["show",left_operand,"--",dir]
@@ -998,12 +1074,10 @@ def p_expression(p):
 def p_bx(p):
       '''bx : sim seen_pn_sim exp seen_pn_exp
             | empty'''
-      #print("---------------------wea",p[1])
       pass
 
 def p_seen_pn_sim(p):
     '''seen_pn_sim :'''
-    print("wea")
     global POper
     simi = p[-1]
     if simi == "<":
@@ -1189,7 +1263,7 @@ def p_seen_exp_in_if(p):
 		quad = ["GotoF", result, "--", "____" ]
 		quads = quads + [quad]
 		JumpStack = JumpStack + [len(quads) - 1]
-		print("´´´´",len(quads))
+		#print("´´´´",len(quads))
 	pass
 
 def p_condssymbols(p):
@@ -1274,7 +1348,7 @@ def p_seen_pn_add_ctevar(p):
     global PilaO 
     global TypeStack
 
-    print("recibi esto : ",p[-1])
+    #print("recibi esto : ",p[-1])
     if type(operand) is int:
         PilaO = PilaO + [operand]
         TypeStack =  TypeStack + [0]
@@ -1295,11 +1369,11 @@ def p_seen_pn_add_ctevar(p):
         for k, v in DiVars.items():
             if idName == v or isinstance(v, list) and idName in v:
                 addToPilaO = True
-                print("popoiu +" , addToPilaO)
-                print("deberia meterlo a la pila")
+                #print("popoiu +" , addToPilaO)
+                #print("deberia meterlo a la pila")
                 varContext = DiVars[k][3]
                 if varContext == context or varContext == "global":
-                    print("deberia meterlo a la pila")
+                    #print("deberia meterlo a la pila")
                     PilaO =  PilaO + [idName]
                     
                     TypeStack =  TypeStack + [DiVars[k][2]] 
@@ -1409,7 +1483,7 @@ def type_to_typeNumber(typeString):
     return typeNumber
 
 def type_to_programType(var):
-    print("typeString : ", var)
+    #print("typeString : ", var)
     if type(var) is int:
         var = "int"
     elif var == "yes" or var == "no":
