@@ -5,6 +5,8 @@ int i = 0;
 IntDict iDic = new IntDict();
 FloatDict fDic = new FloatDict();
 StringDict sDic = new StringDict();
+//Manejo logico mas complejo por solo tener una lista, secuencial
+//Tres listas de booleanos (?)
 ArrayList<Boolean> bDic = new ArrayList<Boolean>();
 
 
@@ -36,6 +38,8 @@ void draw(){
      case 2: //Multi
         break;
      case 3: //Div
+        break;
+     case 4: //asignacion 
         break;
       case 25:
         print("Goto");
@@ -81,12 +85,36 @@ void draw(){
 void PrintArr(int[] arr){  int i; print("PRArrI"); for (i =0; i< arr.length;i++){    print(arr[i]," ");  } println("");}
 void PrintArr(String[] arr){  int i; print("PRArrS"); for (i =0; i< arr.length;i++){  print(arr[i]);  } println(""); }
 
-void SumaOp(int[] q){
-  print("Arre en suma");
-  PrintArr(q);
-  //return operands;
+void SumaOp(int dirA,int dirB,int posRes){
+  print("Entra a sumar en suma");
+  //Se obtienen los tipos de los datos
+  int a = getDict(dirA);
+  int b = getDict(dirB);
+  if (a == 0 && b==0){
+    int valA = iDic.get(str(dirA));
+    int valB = iDic.get(str(dirB));
+    //putiDictValue(posRes, valA + valB);
+    iDic.set(str(posRes),valA + valB);
+  }else if(a== 0 && b==1 ){
+    int valA = iDic.get(str(dirA));
+    float valB = fDic.get(str(dirB));
+    //putfDictValue(posRes,float(valA) + valB);
+    fDic.set(str(posRes),float(valA) + valB);
+  }else if(a== 1 && b==0 ){
+    float valA = fDic.get(str(dirA));
+    int valB = iDic.get(str(dirB));
+    //putfDictValue(posRes,valA + float(valB));
+    fDic.set(str(posRes),valA + float(valB));
+  }else if(a== 1 && b==1 ){
+    float valA = fDic.get(str(dirA));
+    float valB = fDic.get(str(dirB));
+    //putfDictValue(posRes, valA + valB);
+    fDic.set(str(posRes),valA + valB);
+  }
+
 }
 
+//Funcion que no se usar, despreciadad
 int[] GetGoto(String q){
   String cp = q.replace('[','\b'); cp = cp.replace(']','\b'); cp = cp.trim();
   //println("cp:"+cp);
@@ -129,4 +157,97 @@ int getInt(String s){
   }
   
  return ent; 
+}
+//Regresa a que tipo de diccionario pertenece
+int getDict(int dir){
+    //Clasificar las direcciones para buscar en los diccionarios
+  //Checar si esEntera
+  if(dir>= 10000 &&dir<12500 ||dir>= 30000 &&dir< 32500 ||dir>= 40000 &&dir< 42500){
+    return 0;
+  }
+  //Checar si es Flotante
+  if(dir>= 12500 &&dir< 15000  ||dir>= 32500 &&dir< 35000 ||dir>= 42500 &&dir< 45000 ){
+    return 1;
+  }
+  //Checar si es String
+  if(dir>= 15000 &&dir< 17500  ||dir>= 35000 &&dir< 37500 ||dir>= 45000 &&dir< 47500 ){
+    return 2;
+  }
+  //Checar si es Booleana
+  //Posible conlficto,  
+  if(dir>= 17500 &&dir< 20000  ){
+    dir = dir - 17500;
+    return 3;
+  }else if(dir>= 37500 &&dir< 40000 ){
+    dir = dir - 37500;
+    return 3;
+  }else if(dir>= 47500 &&dir< 50000){
+    dir = dir - 47500;
+    return 3;
+  }
+  return -1;
+}
+/*
+int getiDictValue(int dir){
+    //Clasificar las direcciones para buscar en los diccionarios
+  //Checar si esEntera
+  if(dir>= 10000 &&dir<12500 ||dir>= 30000 &&dir< 32500 ||dir>= 40000 &&dir< 42500){
+    return iDic.get(str(dir));
+  } 
+}
+void putiDictValue(int dirRes,int val){
+  iDic.set(str(dirRes),val);
+}
+float getfDictValue(int dir){
+    //Clasificar las direcciones para buscar en los diccionarios
+  //Checar si es Flotante
+  if(dir>= 12500 &&dir< 15000  ||dir>= 32500 &&dir< 35000 ||dir>= 42500 &&dir< 45000 ){
+    return fDic.get(str(dir));
+  }
+}
+void putfDictValue(int dirRes,float val){
+  fDic.set(str(dirRes),val);
+}
+String getsDictValue(int dir){
+    //Clasificar las direcciones para buscar en los diccionarios
+  //Checar si es String
+  if(dir>= 15000 &&dir< 17500  ||dir>= 35000 &&dir< 37500 ||dir>= 45000 &&dir< 47500 ){
+    return sDic.get(str(dir));
+  }
+}
+void putsDictValue(int dirRes,String val){
+  sDic.set(str(dirRes),val);
+}
+Boolean getbDictValue(int dir){
+    //Clasificar las direcciones para buscar en los diccionarios
+  //Checar si es Booleana
+  //Posible conlficto,  
+  if(dir>= 17500 &&dir< 20000  ){
+    dir = dir - 17500;
+    return bDic.get(dir);
+  }else if(dir>= 37500 &&dir< 40000 ){
+    dir = dir - 37500;
+    return bDic.get(dir);
+  }else if(dir>= 47500 &&dir< 50000){
+    dir = dir - 47500;
+    return bDic.get(dir);
+  }
+}
+*/
+//Conflictos
+void putbDictValue(int dirRes,Boolean val){
+  if(dirRes>= 17500 && dirRes< 20000  ){
+    //dir = dir - 17500;
+    bDic.add(val);
+  }else if(dirRes>= 37500 && dirRes< 40000 ){
+    //dir = dir - 37500;
+    bDic.add(val);
+  }else if(dirRes>= 47500 && dirRes< 50000){
+    //dir = dir - 47500;
+    bDic.add(val);
+  }
+}
+
+void putDictValue(int dir){
+
 }
