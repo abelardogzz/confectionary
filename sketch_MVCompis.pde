@@ -26,10 +26,12 @@ int cp = 0;
 void setup(){
   quads = loadStrings("quads.txt");
   op = GetOperand(quads[cp]); //Obtiene el primer comando del primer quad
-  println(ops);
+  println(op);
   //op = ops[0];
-  println("Op:"+ op);
-
+  i = findIndex(quads,"%%");
+  println("Op:", op);
+  
+  loadConst(i);
   
 }
 
@@ -38,7 +40,8 @@ void draw(){
    switch(op[0]){
      case 0: //Sum
         println("sum");
-        //SumaOp(op[1],op[2],op[3]);
+        SumaOp(op[1],op[2],op[3]);
+        exit(); //For test
         break;
      case 1: //res
         println("res");
@@ -92,6 +95,9 @@ void draw(){
   println("--->Este es el cp",cp);
   if( cp == quads.length-1){
     print("Termino programa con Exito");
+    print(iDic);
+    print(fDic);
+    print(sDic);
     exit();
   }
   op = GetOperand(quads[cp]);
@@ -111,29 +117,25 @@ void SumaOp(int dirA,int dirB,int posRes){
     int valB = iDic.get(str(dirB));
     iGlobal = valA + valB;
     putDictValue(posRes);
-    //putiDictValue(posRes, valA + valB);
-    //iDic.set(str(posRes),valA + valB);
+    println("ESte es el resultado de summa-->",iGlobal);
   }else if(a== 0 && b==1 ){
     int valA = iDic.get(str(dirA));
     float valB = fDic.get(str(dirB));
     fGlobal = valA + valB;
     putDictValue(posRes);
-    //putfDictValue(posRes,float(valA) + valB);
-    //fDic.set(str(posRes),float(valA) + valB);
+    println("ESte es el resultado de summa-->",fGlobal);
   }else if(a== 1 && b==0 ){
     float valA = fDic.get(str(dirA));
     int valB = iDic.get(str(dirB));
     fGlobal = valA + valB;
     putDictValue(posRes);
-    //putfDictValue(posRes,valA + float(valB));
-    //fDic.set(str(posRes),valA + float(valB));
+    println("ESte es el resultado de summa-->",fGlobal);
   }else if(a== 1 && b==1 ){
     float valA = fDic.get(str(dirA));
     float valB = fDic.get(str(dirB));
     fGlobal = valA + valB;
     putDictValue(posRes);
-    //putfDictValue(posRes, valA + valB);
-    //fDic.set(str(posRes),valA + valB);
+    println("ESte es el resultado de summa-->",fGlobal);
   }
 }
 //Obtiene las direcciones de los valores que va a resta, los mapea, los resta y agrega al dicc
@@ -245,23 +247,6 @@ void DivOp(int dirA,int dirB,int posRes){
   }
 }
 
-
-
-/*/Funcion que no se usar, despreciadad
-int[] GetGoto(String q){
-  String cp = q.replace('[','\b'); cp = cp.replace(']','\b'); cp = cp.trim();
-  //println("cp:"+cp);
-  String [] ops = split(cp,",");
-  int op = getInt(ops[0]); //Operador 1 de quad
-  println("GOTOop:"+op);
-  int right_op = getInt(ops[1]); //Operador 2 de quad
-  int left_op = getInt(ops[2]); //Operador 3 de quad
-  int res = getInt(ops[3]); //Operador 4 de quad
-  
-  int [] operands = {op,right_op,left_op,res};
-  return operands;
-}*/
-
 int [] GetOperand(String q){
   String cp = q.replace('[','\b');  cp = cp.replace(']','\b');  cp = cp.trim();
   println("cp:"+cp);
@@ -285,15 +270,28 @@ int getInt(String s){
     ent = Integer.parseInt(s.trim());
   } catch (NumberFormatException e) {
     //e.printStackTrace();
-    println("->Esto no es un dirVir "+s);
+    //println("->Esto no es un dirVir "+s);
     ent = -1;
     //exit();
   }
   
  return ent; 
 }
+float getFloat(String s){
+  float flo;
+  try {
+    flo = Float.parseFloat(s.trim());
+  } catch (NumberFormatException e) {
+    //e.printStackTrace();
+    //println("->Esto no es un dirVir "+s);
+    flo = -1.0;
+    //exit();
+  }
+  
+ return flo; 
+}
 
-//Regresa a que tipo de diccionario pertenece
+//Regresa a que tipo de diccionario pertenece, aka regresa el tipo de dato
 int getDict(int dir){
   //Clasificar las direcciones para buscar en los diccionarios
   //Checar si esEntera
@@ -359,8 +357,9 @@ void putDictValue(int dir){
 int findIndex(String [] arr,String x){
   int index ;
   for (index =0;index<arr.length;index++){
-    if(arr[index] == x)
+    if(arr[index].equals(x)){
       return index;
+    }
   }
   return -1;
 }
@@ -376,45 +375,91 @@ void AssignOp(int dirVal,int dirAssign){
   //Clasificar las direcciones para buscar en los diccionarios y asignar
   if (dirVal>= 10000 && dirVal<12500){ //Entera Global
     iGlobal = iDic.get(str(dirVal));
-    iDic.set(str(dirAssign),iGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 12500 &&dirVal< 15000){ //Flotante Global
     fGlobal = fDic.get(str(dirVal));
-    fDic.set(str(dirAssign),fGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 15000 &&dirVal< 17500){ //String Global
     sGlobal = sDic.get(str(dirVal));
-    sDic.set(str(dirAssign),sGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 17500 &&dirVal< 20000){ //Booleanas Globales_ Base: 17500
     //Buscar el indice del valor
     dirVal = dirVal - 17500;
     bGlobal = bDicGlobal.get(dirVal);
-    bDicTemp.add(dirAssign, bGlobal); //*******DHECAR LA FUNCION ADD
+    putDictValue(dirAssign); //*******DHECAR LA FUNCION ADD
 
   }else if(dirVal>= 30000 &&dirVal< 32500){ //Entera Temporales
     iGlobal = iDic.get(str(dirVal));
-    iDic.set(str(dirAssign),iGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 32500 &&dirVal< 35000){ //Flotantes Temporales
     fGlobal = fDic.get(str(dirVal));
-    fDic.set(str(dirAssign),fGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 35000 &&dirVal< 37500){ //Strings Temporales
     sGlobal = sDic.get(str(dirVal));
-    sDic.set(str(dirAssign),sGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 37500 &&dirVal< 40000){ // Booleanas Temporales Base: 37500
-    dir = dir - 37500;
+    dirVal = dirVal - 37500;
+    bGlobal = bDicTemp.get(dirVal);
+    putDictValue(dirAssign);
     //bDicTemp.add(bGlobal);
   }else if(dirVal>= 40000 &&dirVal< 42500){ //Enteras Constantes
     iGlobal = iDic.get(str(dirVal));
-    iDic.set(str(dirAssign),iGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 42500 &&dirVal< 45000){ //Flotantes Constantes
     fGlobal = fDic.get(str(dirVal));
-    fDic.set(str(dirAssign),fGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 45000 &&dirVal< 47500){ //Strings Constantes
     sGlobal = sDic.get(str(dirVal));
-    sDic.set(str(dirAssign),sGlobal);
+    putDictValue(dirAssign);
   }else if(dirVal>= 47500 &&dirVal< 50000){ //Booleanas Constantes Base: 47500
-    dir = dir - 47500;
+    dirVal = dirVal - 47500;
+    bGlobal = bDicConst.get(dirVal);
+    putDictValue(dirAssign);
     //bDicConst.add(bGlobal);
   }else{ //Booleanas Constantes
     println("MEMORY OVERFLOW");
     exit();
   }
+}
+
+void loadConst(int p){
+  int i,dir;
+  print("ENTRO A LOAD CONST ");
+  println(p);
+  String cp ;
+  String aux;
+  int tipo;
+  for (i =p+1; i<quads.length;i++){
+    cp = quads[i].replace('[','\b');  cp = cp.replace(']','\b');  cp = cp.trim();
+    println("const Eval:"+cp);
+    String [] ops = split(cp,",");
+    //Segun la direccion de memoria, puedo saber que tipo es y como parsearlo
+    dir = getInt(ops[1]);
+    tipo = getDict(dir);
+    if (tipo == 0){ //es int
+      iGlobal = getInt(ops[0]);
+      print("Const Entero: "); println(iGlobal);
+      putDictValue(dir); //Meter al diccionario
+    } else if( tipo == 1){ //float
+      fGlobal = getFloat(ops[0]);
+      print("Const float: "); println(fGlobal);
+      putDictValue(dir); //Meter al diccionario
+    } else if( tipo == 2){
+      sGlobal = ops[0].trim();
+      print("Const String: "); println(sGlobal);
+      putDictValue(dir); //Meter al diccionario
+    } else if (tipo == 3){ //Booleano
+      aux = ops[0].trim();
+      if (aux.equals("yes")){
+         bGlobal = true; 
+      } else{
+        bGlobal = false; 
+      }
+      print("contstante Bool: "); println(bGlobal);
+      putDictValue(dir); //Meter al diccionario
+    }
+
+
+  }
+  //exit(); //For test purpose
 }
