@@ -1,76 +1,35 @@
 
 program prueba : 
-var int inUno= -3; 
-var int inTres= 4;
- 
-	float[5] arr = {1.5,2.0};
-	float[5][2] mat = {9.5,3.8,4.6};  
-	int[5][2] matint = {20,25,43,45};
-	string[5][2] matstr = {"hola","byebye"};
-	int[3] pex = {1,2,3}; 
-	string[3] nono = {"si","no","aja"};
-	var float r2D2=2.2;
-	var bool siempre = yes;
 
-var string cosa = "hola";
-recipe int funcionPrueba(int name, int[] yolo, int age){ 
-	var int inCuatro= 5;
-	name = 2 + 3;
-	show("si");
-	show("hola!");
-	 return(5); 
+var int inUno; 
+var int inTres;
+var float r2D2;
+var bool siempre;
+var string cosa;
+var int[3] pex; 
+
+
+
+recipe int funcionPrueba(){ 
+	var int inCuatro;
+	return(5+2); 
 	
 };	
 
-recipe int funcionDos(int param1, float name, float anotherNmae){ 
-	show("no"); return(3+3); 
-};
-
-recipe void funciontres(string frase){  
-	var int inSiete= 7;
-	show("hola!");
- };
-
- recipe void funCuatro(){
-	
- };
 
 confectionary(){
-	var int myVar= 10;
-	var int newVar = 2.1;
-	var string newString = "HolaMundo";
 	
-
-
+	var int myVar;
+	var int newVar;
+	var string newString;
+	inUno = 3;
+	pex[1]= 2;
+	inTres = 14;
 	inUno =  9 + inTres - 5;
 	inTres = 9*3;
 	r2D2 = 3.4 + (3 + 4);
 
 	
-	inUno = funcionDos(5,2.1,2.1);
-	funciontres("try me!");
 
-	funCuatro();
-
-	repeat(3<inTres){
-		ration(4);
-	};
-	
-
-
-	if(inUno < inTres){
-		inTres = 20;
-	}
-	else{
-		show(inTres*4);
-		r2D2 = 4.5;
-
-	};
-
-	read();
-
-	make{
-		ration(6);
-	}repeat(6<inUno);
 	
 }
