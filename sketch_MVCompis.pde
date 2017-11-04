@@ -1,6 +1,7 @@
 //Cargar quads a arreglo 
 String [] quads; 
 int i = 0;
+int dirConsts=0; //Direccion donde empiezan constantes
 int iGlobal=0;
 float fGlobal=0.0;
 String sGlobal="";
@@ -28,10 +29,10 @@ void setup(){
   op = GetOperand(quads[cp]); //Obtiene el primer comando del primer quad
   println(op);
   //op = ops[0];
-  i = findIndex(quads,"%%");
+  dirConsts = findIndex(quads,"%%");
   println("Op:", op);
   
-  loadConst(i);
+  loadConst(dirConsts);
   
 }
 
@@ -41,15 +42,15 @@ void draw(){
      case 0: //Sum
         println("sum");
         SumaOp(op[1],op[2],op[3]);
-        exit(); //For test
+        //exit(); //For test
         break;
      case 1: //res
         println("res");
-        //RestaOp(op[1],op[2],op[3]);
+        RestaOp(op[1],op[2],op[3]);
         break;
      case 2: //Multi
         println("Multi");
-        //MultiOp(op[1],op[2],op[3]);
+        MultiOp(op[1],op[2],op[3]);
         break;
      case 3: //Div
         println("Div");
@@ -93,14 +94,15 @@ void draw(){
     
   cp += 1;
   println("--->Este es el cp",cp);
-  if( cp == quads.length-1){
+  if( cp == dirConsts){
     print("Termino programa con Exito");
     print(iDic);
     print(fDic);
     print(sDic);
     exit();
+  }else{
+    op = GetOperand(quads[cp]);
   }
-  op = GetOperand(quads[cp]);
 }
 
 void PrintArr(int[] arr){  int i; print("PRArrI"); for (i =0; i< arr.length;i++){    print(arr[i]," ");  } println("");}
