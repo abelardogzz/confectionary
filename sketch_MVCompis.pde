@@ -19,20 +19,20 @@ ArrayList<Boolean> bDicTemp = new ArrayList<Boolean>();
 ArrayList<Boolean> bDicConst = new ArrayList<Boolean>();
 
 
-int [] ops ; 
-int [] op;
+int [] ops ; //Arreglo de enteros extra
+int [] op; //Arreglo que maneja el cuadruplo en numeros enteros
 int cp = 0;
 
 
 void setup(){
   quads = loadStrings("quads.txt");
   op = GetOperand(quads[cp]); //Obtiene el primer comando del primer quad
-  println(op);
+  //println(op);
   //op = ops[0];
-  dirConsts = findIndex(quads,"%%");
+  dirConsts = findIndex(quads,"%%"); //Encuentra el comienzo de las constantes
   println("Op:", op);
   
-  loadConst(dirConsts);
+  loadConst(dirConsts); //Carga las constantes a memoria
   
 }
 
@@ -45,28 +45,28 @@ void draw(){
         //exit(); //For test
         break;
      case 1: //res
-        println("res");
+        //println("res");
         RestaOp(op[1],op[2],op[3]);
         break;
      case 2: //Multi
-        println("Multi");
+        //println("Multi");
         MultiOp(op[1],op[2],op[3]);
         break;
      case 3: //Div
-        println("Div");
-        //DivOp(op[1],op[2],op[3]);
+        //println("Div");
+        DivOp(op[1],op[2],op[3]);
         break;
      case 4: //asignacion 
         println("Assi");
-        //AssignOp(op[1],op[3]);
+        AssignOp(op[1],op[3]);
         break;
       case 25:
         print("Goto");
         //ops = GetGoto(quads[cp]);
         cp = op[3] -1; //por logica necesita restar uno
-        PrintArr(op);
+        //PrintArr(op);
         break;
-      case 26: //GotoV
+      case 26: //GotoV-
         break;
       case 27: //GotoF
         break;
@@ -90,15 +90,18 @@ void draw(){
         break;
       case 43: //Retorno
         break;
+      case 44: //VerArr
+        VerificaArr(op[1],op[2],op[3]);
+        break;
     }
     
   cp += 1;
-  println("--->Este es el cp",cp);
+  //println("--->Este es el cp",cp);
   if( cp == dirConsts){
-    print("Termino programa con Exito");
-    print(iDic);
-    print(fDic);
-    print(sDic);
+    println("Termino programa con Exito");
+    println(iDic);
+    println(fDic);
+    println(sDic);
     exit();
   }else{
     op = GetOperand(quads[cp]);
@@ -251,7 +254,7 @@ void DivOp(int dirA,int dirB,int posRes){
 
 int [] GetOperand(String q){
   String cp = q.replace('[','\b');  cp = cp.replace(']','\b');  cp = cp.trim();
-  println("cp:"+cp);
+  //println("cp:"+cp);
   String [] ops = split(cp,",");
   PrintArr(ops);
   //int op = Integer.parseInt(ops[0]);
@@ -427,28 +430,28 @@ void AssignOp(int dirVal,int dirAssign){
 void loadConst(int p){
   int i,dir;
   print("ENTRO A LOAD CONST ");
-  println(p);
+  //println(p);
   String cp ;
   String aux;
   int tipo;
   for (i =p+1; i<quads.length;i++){
     cp = quads[i].replace('[','\b');  cp = cp.replace(']','\b');  cp = cp.trim();
-    println("const Eval:"+cp);
+   // println("const Eval:"+cp);
     String [] ops = split(cp,",");
     //Segun la direccion de memoria, puedo saber que tipo es y como parsearlo
     dir = getInt(ops[1]);
     tipo = getDict(dir);
     if (tipo == 0){ //es int
       iGlobal = getInt(ops[0]);
-      print("Const Entero: "); println(iGlobal);
+     // print("Const Entero: "); println(iGlobal);
       putDictValue(dir); //Meter al diccionario
     } else if( tipo == 1){ //float
       fGlobal = getFloat(ops[0]);
-      print("Const float: "); println(fGlobal);
+      //print("Const float: "); println(fGlobal);
       putDictValue(dir); //Meter al diccionario
     } else if( tipo == 2){
       sGlobal = ops[0].trim();
-      print("Const String: "); println(sGlobal);
+      //print("Const String: "); println(sGlobal);
       putDictValue(dir); //Meter al diccionario
     } else if (tipo == 3){ //Booleano
       aux = ops[0].trim();
@@ -457,11 +460,28 @@ void loadConst(int p){
       } else{
         bGlobal = false; 
       }
-      print("contstante Bool: "); println(bGlobal);
+      //print("contstante Bool: "); println(bGlobal);
       putDictValue(dir); //Meter al diccionario
     }
 
 
   }
   //exit(); //For test purpose
+}
+
+void VerificaArr(int index, int LimI, int LimS){
+  try{
+  index = iDic.get(str(index));
+  } catch(IllegalArgumentException e){
+    println("Null Pointer Exception");
+    print(e);
+    exit();
+  }
+  LimI = iDic.get(str(LimI));
+  LimS = iDic.get(str(LimS));
+ if(index < LimI || index >LimS){
+   println("Index out of bounds");
+   exit();
+   
+ }
 }
