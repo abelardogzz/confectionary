@@ -1,3 +1,4 @@
 *.out
 *.pyproj
 parsetab.py
+*.pyc
