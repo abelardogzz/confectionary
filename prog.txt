@@ -1,0 +1,5 @@
+program hola:
+
+confectionary(){
+	ration(5);
+}

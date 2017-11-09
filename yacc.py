@@ -6,7 +6,7 @@ from lex import tokens
 
 DEBUG = True
 
-#12:30p.m.
+#7 nov
 #from enum import Enum
 #class Types(Enum):
 #    INT = 0
@@ -105,28 +105,39 @@ quads = list()
 
 
 def printDic1(p):
+    fh = open("res.txt","a")
+    fh.write("%%\n")
     for x in p:
+        fh.write(str(p[x]))
+        fh.write("\n")
         print(x,p[x])
+    fh.close()
+
 def printDic(p):
+    fh = open("res.txt","w")
     z=0
     for z,x in enumerate(p):
+        fh.write(str(x))
+        fh.write("\n")
         print( z, x )
-
+    fh.close()
 
 # GRAMMAR
 #program : PROGRAM ID ":" globals main
 def p_programdef(p):
     '''programdef : PROGRAM ID ":" seen_program_start globals main'''
     print("Program Approved!");
-    printDic1(DiConst)
-    printDic1(DiVars)
-    printDic1(DiModules)
-    printDic1(DiTemp)
+    
+    
+    #printDic1(DiVars)
+    #printDic1(DiModules)
+    #printDic1(DiTemp)
     print("pilaO = ",PilaO)
     print("TypeStack = ",TypeStack)
     print("POper = ",POper)
     print("Quads = ")
     printDic(quads)
+    printDic1(DiConst)
     pass
 
 def p_seen_program_start(p):
@@ -233,8 +244,7 @@ def p_globals(p):
 
 def p_recipedef(p):
     '''recipedef : RCP brecipeaux "{" var seen_all_recipe_vars statement  RETURN "(" recipereturn ")" ";" "}" ";" seen_endproc
-  | RCP VOID ID seen_recipe_name "(" brecipe seen_parameters ")" "{" var seen_all_recipe_vars statement  "}" ";" seen_endproc
-  | empty'''
+  | RCP VOID ID seen_recipe_name "(" brecipe seen_parameters ")" "{" var seen_all_recipe_vars statement  "}" ";" seen_endproc'''
 
     #print("recipe");
     pass
@@ -320,7 +330,6 @@ def p_brecipe(p):
   | type ID bbrecipe'''
   global context
   global incrementalNumber
-  global context
 
   if p[1] != "empty": 
 
@@ -512,7 +521,7 @@ def p_vars(p):
 
       memPos = AVAIL(context, typeNumber, 0,0)
       #print("MEMPOS -> ", memPos)
-      DiVars[aux]=[p[3],typeNumber, context, memPos]
+      DiVars[aux]=[p[3],"",typeNumber, context, memPos]
       incrementalNumber = incrementalNumber + 1
     
     pass
@@ -555,9 +564,11 @@ def p_igrid(p):
         matSize = p[4] * p[8] 
         lim_sup_dim_1 = p[4]-1
         lim_sup_dim_2 = p[8]-1
+        dim1 = p[4]
+        dim2 = p[8]
        
         incrementalNumber = incrementalNumber + 1
-        DiVars[aux]=[p[12],"",0, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2]]
+        DiVars[aux]=[p[12],"",0, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2],dim1,dim2]
         separateArrayMem(context,matSize-1,0)
 
 
@@ -622,7 +633,6 @@ def p_fgrid(p):
 
     if addToDict == True:
         aux = GlobalID + str(incrementalNumber)
-        #DiVars[aux]=[p[11],p[14],8, context]
         incrementalNumber = incrementalNumber + 1
 
         memPos = AVAIL(context,1,0,0)
@@ -630,8 +640,10 @@ def p_fgrid(p):
         matSize = p[4] * p[8] 
         lim_sup_dim_1 = p[4]-1
         lim_sup_dim_2 = p[8]-1
+        dim1 = p[4]
+        dim2 = p[8]
        
-        DiVars[aux]=[p[12],"",1, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2]]
+        DiVars[aux]=[p[12],"",1, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2],dim1,dim2]
         separateArrayMem(context,matSize-1,1)
 
 
@@ -689,7 +701,6 @@ def p_sgrid(p):
 
     if addToDict == True:
         aux = GlobalID + str(incrementalNumber)
-        #DiVars[aux]=[p[11],p[14],9, context]
         incrementalNumber = incrementalNumber + 1
 
 
@@ -698,8 +709,10 @@ def p_sgrid(p):
         matSize = p[4] * p[8] 
         lim_sup_dim_1 = p[4]-1
         lim_sup_dim_2 = p[8]-1
+        dim1 = p[4]
+        dim2 = p[8]
        
-        DiVars[aux]=[p[12],"",2, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2]]
+        DiVars[aux]=[p[12],"",2, context, memPos, [0,lim_sup_dim_1], [0, lim_sup_dim_2],dim1,dim2]
         separateArrayMem(context,matSize-1,2)
 
 
@@ -769,7 +782,7 @@ def p_ishelf(p):
         aux = GlobalID + str(incrementalNumber)
         memPos = AVAIL(context,0,0,0)
         lim_sup = p[4]-1
-        DiVars[aux]=[p[7],"",0, context, memPos, [0,p[4]-1]]
+        DiVars[aux]=[p[7],"",0, context, memPos, [0,p[4]-1], p[4]]
         incrementalNumber = incrementalNumber + 1
         separateArrayMem(context,lim_sup,0)
         
@@ -840,7 +853,7 @@ def p_fshelf(p):
         aux = GlobalID + str(incrementalNumber)
         memPos = AVAIL(context,1,0,0)
         lim_sup = p[4]-1
-        DiVars[aux]=[p[7],"",1, context, memPos,[0,p[4]-1]]
+        DiVars[aux]=[p[7],"",1, context, memPos,[0,p[4]-1],p[4]]
         incrementalNumber = incrementalNumber + 1
         separateArrayMem(context,lim_sup,1)
     #print("FLOAT-shelf")
@@ -895,7 +908,7 @@ def p_sshelf(p):
         aux = GlobalID + str(incrementalNumber)
         memPos = AVAIL(context,2,0,0)
         lim_sup = p[4]-1
-        DiVars[aux]=[p[7],"",2, context, memPos,[0,p[4]-1]]
+        DiVars[aux]=[p[7],"",2, context, memPos,[0,p[4]-1], p[4]]
         incrementalNumber = incrementalNumber + 1
         separateArrayMem(context,lim_sup,2)
     #print("STRING-shelf")
@@ -1047,7 +1060,7 @@ def p_seen_pn_read(p):
     pass
 
 def p_funccall(p):
-    ''' funccall : ID "(" seen_funcall_id bfunccall ")" ";" seen_funcall_end'''
+    ''' funccall : "_" ID "(" seen_funcall_id bfunccall ")" ";" seen_funcall_end'''
     print("ended funccall"); 
     pass
 
@@ -1126,14 +1139,39 @@ def p_seen_exp_in_params(p):
   pass
 
 def p_assignment(p):
-    '''assignment : ID  "=" seen_pn_ass_id exp ";" seen_pn_assign
-    | ID "=" seen_pn_ass_id funccall seen_pn_assign
-    | ID "[" seen_pn_ass_id_arr exp "]" seen_access_array "=" exp ";" seen_pn_assign_array'''
+    '''assignment : ID "=" seen_pn_ass_id ass_prima
+    | ass3'''
     #| ID "[" seen_pn_ass_id_arr exp "]" seen_access_array "=" funccall seen_pn_assign_array'''   
     #Esto de arriba falta!
     #print("assignment")
     pass
 
+def p_ass_prima(p):
+  '''ass_prima : funccall seen_pn_assign
+  | exp ";" seen_pn_assign '''
+  pass
+
+
+def p_ass3(p):
+  '''ass3 : ID "[" seen_pn_ass_id_arr exp "]" seen_access_array "=" exp ";" seen_pn_assign_array
+  | ID "[" seen_pn_ass_id_arr exp "]"'''
+  print(" ")
+  pass
+
+def p_seen_ok1(p):
+  '''seen_ok1 :'''
+  print("seen_ok1")
+  pass
+
+def p_seen_ok2(p):
+  '''seen_ok2 :'''
+  print("seen_ok2")
+  pass
+
+def p_seen_ok3(p):
+  '''seen_ok3 :'''
+  print("seen_ok3")
+  pass
 
 def p_seen_access_array(p):
   '''seen_access_array :'''
@@ -1149,9 +1187,9 @@ def p_seen_access_array(p):
     exit(0)
   upperLimit = DiVars[key][5][1]
 
-  if result>upperLimit:
-    print("Array index out of bounds!")
-    exit(0)
+  #if result>upperLimit:
+   # print("Array index out of bounds!")
+    #exit(0)
 
   quad = generate_Quad("VerArr",result,0,upperLimit)
   quads = quads + [quad]
@@ -1188,6 +1226,7 @@ def p_seen_pn_ass_id_arr(p):
               break  
 
   if addToPilaO == False:
+      print("estas en el assing")
       missing_variable(idName)
   p[0] = key
   pass
@@ -1252,10 +1291,11 @@ def p_seen_pn_assign_array(p):
               print("Lo que envio en ass->", operator, left_operand, "", result)
               quad = generate_Quad(operator, left_operand, "", result)
               quad[3] = quad[3] + p[-4]
-              print("El nuevo quad !*->", quad)
+              print("aquipapu! ->",p[-4] )
+              print("El nuevo quad !***->", quad)
               quads = quads + [quad]
           else:
-              print("Mi hija no baila con el señor")
+              print("3Mi hija no baila con el señor")
               exit(0)
     pass
 
@@ -1272,7 +1312,8 @@ def p_seen_pn_assign(p):
           result_Type = TypeStack.pop()
           operator = POper.pop()
           operator = 4
-
+          print("LEFT_OP", left_operand, left_Type)
+          print("result", result, result_Type)
           result_Type = CuboSem.CuboSemantico[left_Type][result_Type][operator]
           global quads
           if result_Type != 99:
@@ -1282,7 +1323,7 @@ def p_seen_pn_assign(p):
               print("El nuevo quad ->", quad)
               quads = quads + [quad]
           else:
-              print("Mi hija no baila con el señor")
+              print("2Mi hija no baila con el señor")
               exit(0)
     pass
 
@@ -1388,7 +1429,7 @@ def p_seen_pn_exp(p):
                 TypeStack = TypeStack + [resultType]
                 #print("Quad! - ", operator ," ", left_operand , " ", right_operand , " " , "t1"  )
             else:
-                print("MI HIJA NO BAILA CON EL SEÑOR")
+                print("4MI HIJA NO BAILA CON EL SEÑOR")
                 exit()
     pass
 
@@ -1438,7 +1479,7 @@ def p_seen_pn_term(p):
                 TypeStack = TypeStack + [resultType]
                 #print("Quad! - ", operator ," ", left_operand , " ", right_operand , " " , "t1"  )
             else:
-                print("MI HIJA NO BAILA CON EL SEÑOR")
+                print("1MI HIJA NO BAILA CON EL SEÑOR")
                 exit()
     pass
 
@@ -1495,7 +1536,7 @@ def p_seen_pn_factor(p):
                 TypeStack = TypeStack + [resultType]
                 #print("Quad! - ", operator ," ", left_operand , " ", right_operand , " " , "t1"  )
             else:
-                print("MI HIJA NO BAILA CON EL SEÑOR")
+                print("5MI HIJA NO BAILA CON EL SEÑOR")
                 exit()
     pass
 
@@ -1587,7 +1628,7 @@ def p_seen_more_than_one_expression(p):
     PilaO = PilaO + [memPos]
     TypeStack = TypeStack + [resultType]
   else:
-    print("MI HIJA NO BAILA CON EL SEÑOR")
+    print("6MI HIJA NO BAILA CON EL SEÑOR")
     exit()
 
   #ENDDANGERZONE
@@ -1625,7 +1666,7 @@ def p_seen_else(p):
 def p_factor(p):
     '''factor : "(" seen_LP expression ")" seen_RP
     | bfactor ctevar seen_pn_add_ctevar'''
-    #print("FACTOR")
+    print("FACTOR")
     pass
 
 def p_seen_pn_add_ctevar(p):
@@ -1644,7 +1685,7 @@ def p_seen_pn_add_ctevar(p):
     elif operand[0] == "\"":
         PilaO = PilaO + [operand]
         TypeStack =  TypeStack + [2]
-    elif type(operand) is bool:
+    elif type(operand) is bool or operand == "yes" or operand == "no":
         PilaO = PilaO + [operand]
         TypeStack =  TypeStack + [3]
     else:
@@ -1666,6 +1707,7 @@ def p_seen_pn_add_ctevar(p):
                      
 
         if addToPilaO == False:
+            print("estas en addctevar")
             missing_variable(idName)
 
     pass
@@ -1689,12 +1731,13 @@ def p_bfactor(p):
     pass
 
 def p_ctevar(p):
-    '''ctevar : ID idbody 
+    '''ctevar : ID 
                | CTEINT seen_cte
                | CTEFLOAT seen_cte
         | ctebool seen_cte
         | CTESTRING seen_cte''' 
-    p[0] = p[1] #print("CTEVAR ",p[1])
+    p[0] = p[1]
+    print("CTEVAR ",p[1])
     pass
 
 def p_idbody(p): 
@@ -1752,7 +1795,7 @@ def p_empty(p):
     pass
 
 def p_error(p):
-    print("Syntax error",p.value,p.lineno)
+    print("Syntax error", p.value, p.lineno)
     exit(0)
     pass
 
@@ -1823,7 +1866,7 @@ def AVAIL(context, varType , tempFlag,constFlag):
   else:
     if tempFlag != 0:
       memSpace = VirtualMem[2][varType]
-      print("MEMTOGIVE> ",memSpace)
+      #print("MEMTOGIVE> ",memSpace)
       VirtualMem[2][varType] = VirtualMem[2][varType] + 1
     else:
       if context != "global" and context != "confectionary":
@@ -1855,7 +1898,6 @@ def generate_Quad(operator, left_op, right_op, result):
     result = quadParamChecker(result)
   else:
     if "param" not in result:
-      print("ALV")
       result = quadParamChecker(result)
   quad = [operator, left_op, right_op, result]
   return quad
@@ -1866,7 +1908,7 @@ def quadParamChecker(itemToCheck):
   global incrementalNumberConst
   global incrementalNumber
   global GlobalConst
-  cteType = type(itemToCheck)
+  cteType = type_to_programType(itemToCheck)
   cteType = type_to_typeNumber(cteType)
   if type(itemToCheck) != str: #osea q es constante o temporal
     #print("ITEMTOCHECK> ", itemToCheck)
@@ -1962,5 +2004,5 @@ def separateArrayMem(context,lim_sup,arrType):
 import ply.yacc as yacc
 parser = yacc.yacc()
 #yacc.yacc()
-file = open("test.txt", "r")
+file = open("prog.txt", "r")
 yacc.parse(file.read())

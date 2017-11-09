@@ -1,35 +1,72 @@
 
 program prueba : 
-
 var int inUno; 
 var int inTres;
-var float r2D2;
-var bool siempre;
+ 
+	var float[5] arr;
+	var float r2D2;
+	var int[3] pex;
+	var bool siempre;
+
 var string cosa;
-var int[3] pex; 
-
-
-
-recipe int funcionPrueba(){ 
+recipe int funcionPrueba(int name, int[] yolo, int age){ 
 	var int inCuatro;
+	name = 2 + 3;
+	show("si");
+	show("hola!");
 	return(5+2); 
 	
 };	
 
+recipe int funcionDos(int param1, float name, float anotherNmae){ 
+	show("no"); return(param1+5); 
+};
+
+recipe void funciontres(string frase){  
+var int inSiete;
+show("hola!");
+ };
 
 confectionary(){
-	
 	var int myVar;
 	var int newVar;
 	var string newString;
-	inUno = 3;
-	pex[1]= 2;
-	inTres = 14;
-	inUno =  9 + inTres - 5;
-	inTres = 9*3;
-	r2D2 = 3.4 + (3 + 4);
+	var bool cierto;
+
 
 	
+	inTres = 9*3;
+	r2D2 = 3.4 + (3 + 4);
+	newString = "hola2";
+	
+	
 
+
+
+	ration(4* inTres);
+
+	flavor(2,3,4);
+
+
+	repeat(inUno == 3){
+		ration(4);
+	};
+	
+
+
+	if(inUno < inTres){
+		inTres = 20;
+	}
+	else{
+		show(inTres*4);
+		r2D2 = 4.5;
+
+	};
+
+	read();
+
+	make{
+		ration(6);
+	}repeat(6>inUno);
 	
 }
