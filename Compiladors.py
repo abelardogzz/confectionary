@@ -2,6 +2,8 @@ import tkinter as tk
 import subprocess
 import turtle
 
+
+
 #Program Couter
 pc = 0
 #Dictionaries
@@ -132,31 +134,54 @@ def IniciaEjecucion():
 
         #Switch para opciones
         if op == 0 :
-            print("Operación")
+            #print("Operación")
             Suma(quadEnNum[1],quadEnNum[2],quadEnNum[3])
             #print(quadEnNumeros)
         elif op == 1:
-            print("Resta")
+            #print("Resta")
             Resta(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 2:
-            print("multi")
+            #print("multi")
             Multiplica(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 3:
-            print("divi")
+            #print("divi")
             Divide(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 4:
-            print("assign")
+            #print("assign")
             Assigna(quadEnNum[1],quadEnNum[3])
         elif op == 5:
             print("IGUALGUAL")
+            IgualÍgual(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 6 :
+            print("Diferente")
+            IgualDiferente(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 7 :
+            print("mayor khe")
+            MayorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 8 :
+            print("meno khe")
+            MenorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 9 :
+            print("Igual mayor khe")
+            MayorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 10:
+            print("Igual menor khe")
+            MenorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 11:
+            print("OR ")
+            RelacionOR(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 12:
+            print("AND ")
+            RelacionAND(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 25:
             print("GotO")
             pc = quadEnNum[3]-1
         elif op == 26:
             print("GotoV")
-
+            GotoV(quadEnNum[1],quadEnNum[3])
         elif op == 27:
             print("GotoF")
+            GotoF(quadEnNum[1],quadEnNum[3])
         
         #Aumenta el Program Counter
         pc = pc + 1
@@ -188,11 +213,63 @@ def Divide(dirA,dirB,dirRes):
     AgregaValorDict(dirRes,a/b)
     pass
 
+def GotoV(checa,NewPC):
+    global pc
+    checa = bDic[checa]
+    if checa:
+        pc = NewPC - 1
+    pass
+def GotoF(checa, NewPC):
+    global pc
+    checa = bDic[checa]
+    if not checa:
+        pc = NewPC - 1
+    pass
 
 def Assigna(dirA,dirRes):
     res = SacaValorDict(dirA)
     AgregaValorDict(dirRes,res)
-    print("Assigna",res)
+    print("Assigna----->",res)
+    pass
+def IgualÍgual(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a==b)
+    pass
+def IgualDiferente(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a!=b)
+    pass
+def MayorQue(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a>b)
+    pass
+def MenorQue(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a<b)
+    pass
+def MayorIgualQue(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a>=b)
+    pass
+def MenorIgualQue(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a<=b)
+    pass
+def RelacionOR(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a or b)
+    pass
+def RelacionAND(dirA,dirB,dirRes):
+    a = SacaValorDict(dirA)
+    b = SacaValorDict(dirB)
+    AgregaValorDict(dirRes,a and b)
     pass
 #Agrega en un valor en la direccion que se provee como argumentos
 def AgregaValorDict(dir,valor):
@@ -212,9 +289,11 @@ def AgregaValorDict(dir,valor):
         sDic[dir] = valor
     #Checa si es booleano
     if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
-        if valor.lower() == "yes" :
+        if type(valor ) is str:
+            valor.lower()
+        if valor == "yes" or valor :
             bDic[dir] = True
-        if valor.lower() == "no" : 
+        if valor == "no"  or not valor: 
             bDic[dir] = False
     pass
 def SacaValorDict(dir):
@@ -223,18 +302,35 @@ def SacaValorDict(dir):
     global sDic
     global bDic
     #Checa si es entero para regresarlo
+    
     if dir>= 10000 and dir< 12500 or dir>= 20000 and dir< 22500 or dir>= 30000 and dir< 32500 or dir>= 40000 and dir< 42500:
-        return iDic[dir] 
+        try: 
+            return iDic[dir] 
+        except KeyError :
+            print("Warning: Variable no Inicializada")
+            return 0
     #Checa si es flotante para regresarlo
     if dir>= 12500 and dir< 15000 or dir>= 22500 and dir< 25000 or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
-        return fDic[dir] 
+        try:
+            return fDic[dir] 
+        except KeyError:
+            print("Warning: Variable no Inicializada")
+            return 0.0
     #Checa si es String para regresarlo
     if dir>= 15000 and dir< 17500 or dir>= 25000 and dir< 27500 or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
-        return sDic[dir]
+        try:
+            return sDic[dir]
+        except KeyError:
+            print("Warning: Variable no Inicializada")
+            return ""
     #Checa si es booleano para regresarlo
     if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
-        return bDic[dir]
-
+        try:
+            return bDic[dir]
+        except KeyError:
+            print("Warning: Variable no Inicializada")
+            return False
+ 
 root = tk.Tk()
 #app = App(root)
 root.title("Program FOOD")
