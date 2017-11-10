@@ -1,5 +1,56 @@
-program hola:
+
+program prueba : 
+var int inUno; 
+var int inTres;
+ 
+	var float[5] arr;
+	var float[5][2] mat;  
+	var int[5][2] matint;
+	var string[5][2] matstr;
+	var int[3] pex; 
+	var string[3] nono;
+	var float r2D2;
+	var bool siempre;
+
+var string cosa;
+recipe int funcionPrueba(int name, int[] yolo, int age){ 
+	var int inCuatro;
+	name = 2 + 3;
+	show("si");
+	show("hola!");
+	return(5+2); 
+	
+};	
+
+recipe int funcionDos(int param1, float name, float anotherNmae){ 
+	show("no"); return(param1+5); 
+};
+
+recipe void funciontres(string frase){  
+var int inSiete;
+show("hola!");
+show("hola!");
+show("hola!");
+ };
 
 confectionary(){
-	ration(5);
+	var int myVar;
+	var int newVar;
+	var string newString;
+	
+
+	inTres=2;
+	inUno =  9 + inTres - 5;
+	inTres = 9*3;
+	r2D2 = 3.4 + (3 + 4);
+
+
+
+
+	ration(4* inTres);
+
+	flavor(2,3,4);
+
+
+
 }
