@@ -12,6 +12,8 @@ fDic = dict()
 sDic = dict()
 bDic = dict()
 quads = list()
+#Diccionario para las funciones
+ModDic = dict()
 
 
 def printDict(d):
@@ -79,6 +81,10 @@ def LoadConst(q):
 
 def EjecutarPrograma():
     global quads
+    global pc
+    pc = 0
+    quads.clear()
+
     const = False
     print("ejecutando programa")
     arch = open("res.txt","r")

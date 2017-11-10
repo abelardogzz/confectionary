@@ -50,7 +50,7 @@ confectionary(){
 	inTres = 3;
 	};
 	if (1<2){
-	inTres = 2;
+	inTres = 4;
 	};
 
 	if (1>=2){
@@ -59,6 +59,8 @@ confectionary(){
 	if (1<=2){
 	inTres = 7;
 	};
+
+	
 
 
 }

@@ -110,7 +110,7 @@ def printDic1(p):
     for x in p:
         fh.write(str(p[x]))
         fh.write("\n")
-        print(x,p[x])
+        #print(x,p[x])
     fh.close()
 
 def printDic(p):
@@ -119,7 +119,7 @@ def printDic(p):
     for z,x in enumerate(p):
         fh.write(str(x))
         fh.write("\n")
-        print( z, x )
+        #print( z, x )
     fh.close()
 
 # GRAMMAR
