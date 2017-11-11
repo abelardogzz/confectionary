@@ -15,6 +15,9 @@ quads = list()
 #Diccionario para las funciones
 ModDic = dict()
 
+#Crea Tortuga
+t= turtle.Turtle()
+
 
 def printDict(d):
     for x in d:
@@ -50,10 +53,10 @@ def CompilaProg():
     pass
 
 #Comeinza el proceso de interfaz Tortuga
-def ComienzaProg():
-    t= turtle.Turtle()
-    #global t
-    t.shape("classic")
+def CargaInterfaz():
+    #t= turtle.Turtle()
+    global t
+    t.shape("turtle")
     t.circle(80)
     t.screen.mainloop()
     pass
@@ -144,58 +147,57 @@ def IniciaEjecucion():
         #print(quadEnNum)
 
         #Switch para opciones
-        if op == 0 :
+        if op == 0 : #+
             #print("Operación")
             Suma(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-            #print(quadEnNumeros)
-        elif op == 1:
+        elif op == 1: #-
             #print("Resta")
             Resta(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 2:
+        elif op == 2: #*
             #print("multi")
             Multiplica(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 3:
+        elif op == 3: #/
             #print("divi")
             Divide(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 4:
+        elif op == 4: #=
             #print("assign")
             Assigna(quadEnNum[1],quadEnNum[3])
-        elif op == 5:
+        elif op == 5: #==
             print("IGUALGUAL")
             IgualÍgual(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 6 :
+        elif op == 6 : #!=
             print("Diferente")
             IgualDiferente(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 7 :
+        elif op == 7 : #>
             print("mayor khe")
             MayorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 8 :
+        elif op == 8 : #<
             print("meno khe")
             MenorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 9 :
-            print("Igual mayor khe")
+        elif op == 9 : #>=
+            print(" mayor Igual khe")
             MayorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 10:
-            print("Igual menor khe")
+        elif op == 10: #<=
+            print(" menor Igual khe")
             MenorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 11:
+        elif op == 11: #OR
             print("OR ")
             RelacionOR(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 12:
+        elif op == 12: #AND
             print("AND ")
             RelacionAND(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 25:
+        elif op == 25: #Goto
             print("GotO")
             pc = quadEnNum[3]-1
-        elif op == 26:
+        elif op == 26: #GotoV
             print("GotoV")
             GotoV(quadEnNum[1],quadEnNum[3])
-        elif op == 27:
+        elif op == 27: #GotoF
             print("GotoF")
             GotoF(quadEnNum[1],quadEnNum[3])
-        elif op == 30:
+        elif op == 30: #
             print("show")
-            
+            Muestra(quadEnNum[1])
         elif op == 31:
             print("flavour")
             
@@ -304,6 +306,29 @@ def RelacionAND(dirA,dirB,dirRes):
     b = SacaValorDict(dirB)
     AgregaValorDict(dirRes,a and b)
     pass
+
+def Muestra(dir):
+    val = SacaValorDict(dir)
+    print(val)
+    pass
+def Sabroso(dirR,dirG,dirB):
+
+    pass
+def Racion(dir):
+    pass
+def DibujaPastel(dirRad,dirX,dirY):
+    pass
+def DibujaLinea(dirX1,dirY1,dirX2,dirY2):
+
+    pass
+def DibujaBarra(dirX1,dirY1,dirX2,dirY2):
+    pass
+def Lee():
+    #Pues lee en algo
+    pass
+
+
+
 #Agrega en un valor en la direccion que se provee como argumentos
 def AgregaValorDict(dir,valor):
     global iDic
