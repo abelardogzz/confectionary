@@ -21,11 +21,6 @@ recipe int funcionPrueba(int name, int[] yolo, int age){
 	return(5+2); 
 	
 };	
-
-recipe int funcionDos(int param1, float name, float anotherNmae){ 
-	show("no"); return(param1+5); 
-};
-
 recipe void funciontres(string frase){  
 var int inSiete;
 show("hola!");
@@ -49,11 +44,11 @@ confectionary(){
 	} else {
 	inTres = 3;
 	};
-	if (1<2){
+	if (1<  2 + inTres){
 	inTres = 4;
 	};
 
-	if (1>=2){
+	if (inTres>=2){
 	inTres = 5;
 	};
 	if (1<=2){

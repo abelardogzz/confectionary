@@ -6,7 +6,7 @@ from lex import tokens
 
 DEBUG = True
 
-#7 nov
+
 #from enum import Enum
 #class Types(Enum):
 #    INT = 0
@@ -39,7 +39,8 @@ DEBUG = True
 # 40-PARAM
 # 41-ERA
 # 42-GOSUB
-# 43-RETORNO
+# 43-ENDPROC
+# 44-RETURN 
 
 
 
@@ -105,22 +106,23 @@ quads = list()
 
 
 def printDic1(p):
-    fh = open("res.txt","a")
-    fh.write("%%\n")
+    arch = open("res.txt","a")
     for x in p:
-        fh.write(str(p[x]))
-        fh.write("\n")
+        arch.write(str(p[x]))
+        arch.write("\n")
         #print(x,p[x])
-    fh.close()
-
+    
+    arch.close()
 def printDic(p):
-    fh = open("res.txt","w")
     z=0
+    arch = open("res.txt","w")
     for z,x in enumerate(p):
-        fh.write(str(x))
-        fh.write("\n")
+        arch.write(str(x))
+        arch.write("\n")
         #print( z, x )
-    fh.close()
+    arch.write("%%\n")
+    arch.close()
+
 
 # GRAMMAR
 #program : PROGRAM ID ":" globals main
@@ -128,10 +130,6 @@ def p_programdef(p):
     '''programdef : PROGRAM ID ":" seen_program_start globals main'''
     print("Program Approved!");
     
-    
-    #printDic1(DiVars)
-    #printDic1(DiModules)
-    #printDic1(DiTemp)
     print("pilaO = ",PilaO)
     print("TypeStack = ",TypeStack)
     print("POper = ",POper)
@@ -303,6 +301,7 @@ def p_seen_recipe_name(p):
     #DANGERZONE
     global incrementalNumberFun
     global auxCont #PARAMCOUNTER
+    global incrementalNumber
 
     addToDict = True
     for k, v in DiModules.items():
@@ -318,6 +317,22 @@ def p_seen_recipe_name(p):
       DiModules[aux]=[p[-1],typeNumber]
       incrementalNumberFun = incrementalNumberFun + 1
 
+
+      addToDictVar = True
+      for k, v in DiVars.items():
+          if p[-1] == v or isinstance(v, list) and p[-1] in v:
+              varContext = DiVars[k][-1]
+              if varContext == context:
+                  addToDictVar = False 
+                  repeated_var_error(p[-1])
+
+      if addToDictVar == True:
+          aux = GlobalID + str(incrementalNumber)
+          memPos = AVAIL(context, typeNumber, 0, 0)
+          print("ME REGRESO LA MEMORIA> ", memPos)
+          DiVars[aux]=[p[-1],0,typeNumber, "global", memPos]
+          incrementalNumber = incrementalNumber + 1
+
     #ENDDANGERZONE
 
 
@@ -330,6 +345,7 @@ def p_brecipe(p):
   | type ID bbrecipe'''
   global context
   global incrementalNumber
+  global context
 
   if p[1] != "empty": 
 
@@ -394,13 +410,23 @@ def p_recipereturn(p):
   '''recipereturn : exp'''
   global TypeStack
   global incrementalNumberFun
+  global PilaO
+  global TypeStack
+  global quads
   returnValueType = TypeStack[-1]
   index = str(incrementalNumberFun-1)
   ModuleReturnType = DiModules["FunId-"+index][1]
   if returnValueType != ModuleReturnType:
     print("Return type mismtach in function ", DiModules["FunId-"+index][0])
     exit(0)
+
+  return_value = PilaO.pop()
+  return_type = TypeStack.pop()
+  quad = generate_Quad(44, return_value,"","")
+  quads = quads + [quad]
+
   #print("recipereturn");
+
   pass
 
 def p_blocks(p):
@@ -456,10 +482,10 @@ def p_seen_pn_ratio(p):
     pass
 
 def p_flavor(p):
-    '''flavor : FLVR "(" exp "," seen_pn_flavor exp "," seen_pn_flavor exp seen_pn_flavor ")" ";" '''
+    '''flavor : FLVR "(" exp ","  exp ","  exp seen_pn_flavor ")" ";" '''
     #print("flavor");
     pass
-
+#CHECKPOINT
 def p_seen_pn_flavor(p):
     '''seen_pn_flavor : '''
     global TypeStack
@@ -469,21 +495,22 @@ def p_seen_pn_flavor(p):
     global availTemp
     global DiTemp
 
-    left_operand = PilaO.pop()
-    left_type = TypeStack.pop()
+    thirdParam = PilaO.pop()
+    third_type = TypeStack.pop()
 
-    if left_type == 0 or left_type == 1 :
-        aux = "t" + str(availTemp)
-        availTemp = availTemp + 1
-        memPos = AVAIL(context,left_type,1,0)
-        DiTemp[aux] = memPos
-        print("ME REGRESO LA MEMORIA> ", memPos)
-        #quad = [ "flavor", left_operand, "--", result]
-        quad = generate_Quad(31, left_operand, "--", memPos)
+    secondParam = PilaO.pop()
+    second_type = TypeStack.pop()
+
+    firstParam = PilaO.pop()
+    first_type = TypeStack.pop()
+
+    if third_type == 0 or third_type == 1 or second_type == 0 or second_type == 1 or first_type == 0 or first_type == 1:
+        #quad = [ "flavor", left_operand, "--", result
+        quad = generate_Quad(31, firstParam, secondParam, thirdParam)
 
         quads = quads + [quad]
     else:
-        print("---Type mis-match, no hay baile flavor")
+        print("---Type mis-match in flavor, no hay baile flavor")
         exit(0)
     pass
 
@@ -959,7 +986,7 @@ def p_drawing(p):
     pass
 
 def p_drawcupcake(p):
-    '''drawcupcake : "(" exp "," seen_pn_drCU exp "," seen_pn_drCU exp seen_pn_drCU ")" ";" '''
+    '''drawcupcake : "(" exp "," exp "," exp seen_pn_drCU ")" ";" '''
     print("drawcupcake");
     pass
 
@@ -972,17 +999,18 @@ def p_seen_pn_drCU(p):
     global availTemp
     global DiTemp
 
-    left_operand = PilaO.pop()
-    left_type = TypeStack.pop()
+    thirdParam = PilaO.pop()
+    third_type = TypeStack.pop()
 
-    if left_type == 0 or left_type == 1 :
-        aux = "t" + str(availTemp)
-        availTemp = availTemp + 1
-        memPos = AVAIL(context, left_type, 1, 0)
-        print("ME REGRESO LA MEMORIA> ", memPos)
-        DiTemp[aux] = memPos
-        quad = generate_Quad(33, left_operand, "--", memPos)
-        #quad = [ "drCup", left_operand, "--", result]
+    secondParam = PilaO.pop()
+    second_type = TypeStack.pop()
+
+    firstParam = PilaO.pop()
+    first_type = TypeStack.pop()
+    print("FP-",firstParam)
+    if third_type == 0 or third_type == 1 or second_type == 0 or second_type == 1 or first_type == 0 or first_type == 1:        
+        quad = generate_Quad(33, firstParam, secondParam, thirdParam)
+
         quads = quads + [quad]
     else:
         print("---Type mis-match, no hay baile Cupcake")
@@ -990,7 +1018,7 @@ def p_seen_pn_drCU(p):
     pass
 
 def p_drawcane(p):
-    '''drawcane : "(" exp "," seen_pn_drCA exp "," seen_pn_drCA exp "," seen_pn_drCA exp seen_pn_drCA ")" ";" '''
+    '''drawcane : "(" exp ","  exp seen_pn_drCA ","  exp ","  exp seen_pn_drCA ")" ";" '''
     #print("drawcane");
     pass
 def p_seen_pn_drCA(p):
@@ -1002,24 +1030,21 @@ def p_seen_pn_drCA(p):
     global availTemp
     global DiTemp
 
-    left_operand = PilaO.pop()
-    left_type = TypeStack.pop()
+    secondParam = PilaO.pop()
+    second_type = TypeStack.pop()
 
-    if left_type == 0 or left_type == 1 :
-        aux = "t" + str(availTemp)
-        availTemp = availTemp + 1
-        memPos = AVAIL(context, left_type,1,0)
-        print("ME REGRESO LA MEMORIA> ", memPos)
-        DiTemp[aux] = memPos
-        #quad = [ "drCane", left_operand, "--", result]
-        quad = generate_Quad(34, left_operand, "--", memPos)
+    firstParam = PilaO.pop()
+    first_type = TypeStack.pop()
+
+    if second_type == 0 or second_type == 1 or first_type == 0 or first_type == 1:        
+        quad = generate_Quad(34, firstParam, secondParam, "--")
         quads = quads + [quad]
     else:
         print("Type mis match, no hay baile en Cane")
     pass
 
 def p_drawchocobar(p):
-    '''drawchocobar : "(" exp "," seen_pn_drCH exp "," seen_pn_drCH exp "," seen_pn_drCH exp seen_pn_drCH ")" ";" '''
+    '''drawchocobar : "(" exp "," exp seen_pn_drCH ","  exp ","  exp seen_pn_drCH ")" ";" '''
     #print("drawchocobar");
     pass
 def p_seen_pn_drCH(p):
@@ -1031,17 +1056,14 @@ def p_seen_pn_drCH(p):
     global availTemp
     global DiTemp
 
-    left_operand = PilaO.pop()
-    left_type = TypeStack.pop()
+    secondParam = PilaO.pop()
+    second_type = TypeStack.pop()
 
-    if left_type == 0 or left_type == 1 :
-        aux = "t" + str(availTemp)
-        availTemp = availTemp + 1
-        memPos = AVAIL(context, left_type, 1, 0)
-        print("ME REGRESO LA MEMORIA> ", memPos)
-        DiTemp[aux] = memPos
-        #quad = [ "drChoc", left_operand, "--", memPos]
-        quad = generate_Quad(35, left_operand, "--", memPos)
+    firstParam = PilaO.pop()
+    first_type = TypeStack.pop()
+
+    if second_type == 0 or second_type == 1 or first_type == 0 or first_type == 1: 
+        quad = generate_Quad(35, firstParam, secondParam, "--")
         quads = quads + [quad]
     else:
         print("Type mis match, no hay baile en chocolate")
@@ -1062,6 +1084,7 @@ def p_seen_pn_read(p):
 def p_funccall(p):
     ''' funccall : "_" ID "(" seen_funcall_id bfunccall ")" ";" seen_funcall_end'''
     print("ended funccall"); 
+    p[0] = p[2]
     pass
 
 def p_seen_funcall_end(p):
@@ -1141,21 +1164,60 @@ def p_seen_exp_in_params(p):
 def p_assignment(p):
     '''assignment : ID "=" seen_pn_ass_id ass_prima
     | ass3'''
-    #| ID "[" seen_pn_ass_id_arr exp "]" seen_access_array "=" funccall seen_pn_assign_array'''   
-    #Esto de arriba falta!
     #print("assignment")
     pass
 
 def p_ass_prima(p):
-  '''ass_prima : funccall seen_pn_assign
+  '''ass_prima : funccall seen_pn_funcall_assign
   | exp ";" seen_pn_assign '''
   pass
 
+def p_seen_pn_funcall_assign(p):
+  '''seen_pn_funcall_assign :'''
+  global PilaO
+  global TypeStack
+  idName = p[-1]
+  key = ""
+  for k, v in DiVars.items():
+      if idName == v or isinstance(v, list) and idName in v:
+        key = k
+
+  result = DiVars[key][4]
+  resultfun_type = DiVars[key][2]
+
+  left_operand = PilaO.pop()
+  left_Type = TypeStack.pop()
+
+  operator = POper.pop()
+  operator = 4
+
+  result_Type = CuboSem.CuboSemantico[left_Type][resultfun_type][operator]
+  global quads
+  if result_Type != 99:
+      #quad = [operator, left_operand , ""  , result ]
+      print("Lo que envio en ass->", operator, left_operand, "", result)
+      quad = generate_Quad(operator, left_operand, "", result)
+      print("El nuevo quad ->", quad)
+      quads = quads + [quad]
+  else:
+      print("2Mi hija no baila con el señor")
+      exit(0)
+
+  pass
 
 def p_ass3(p):
-  '''ass3 : ID "[" seen_pn_ass_id_arr exp "]" seen_access_array "=" exp ";" seen_pn_assign_array
-  | ID "[" seen_pn_ass_id_arr exp "]"'''
-  print(" ")
+  '''ass3 : ID "[" seen_pn_ass_id_arr exp "]" ass3_prima_prima'''
+  pass
+
+def p_ass3_prima(p):
+  '''ass3_prima : exp ";" seen_pn_assign_array
+  | funccall seen_pn_funcall_assign'''
+  #| funccall seen_pn_assign_array'''
+  pass
+
+def p_ass3_prima_prima(p):
+  '''ass3_prima_prima : seen_access_array "=" ass3_prima
+  | "[" exp "]"  "=" exp ";" '''
   pass
 
 def p_seen_ok1(p):
@@ -1195,8 +1257,11 @@ def p_seen_access_array(p):
   quads = quads + [quad]
   print("upperLimit->", upperLimit)
   print("This is the key! -> ", key)
-
+  result = quad[1]
+  print("pap!",result)
   p[0] = result
+  PilaO = PilaO + [result]
+  TypeStack = TypeStack + [result_type]
 
   #if
 
@@ -1274,6 +1339,8 @@ def p_seen_pn_assign_array(p):
           left_operand = PilaO.pop()
           #print("LEFT_OPERAND->",left_operand)
           left_Type = TypeStack.pop()
+          middle = PilaO.pop()
+          middle_type = TypeStack.pop()
           result = PilaO.pop()
           #print("RESULT->",result)
           result_Type = TypeStack.pop()
@@ -1285,13 +1352,23 @@ def p_seen_pn_assign_array(p):
 
           #result_Type = CuboSem.CuboSemantico[left_Type][result_Type][operator]
           global quads
+          global availTemp
+          global DiTemp
           if result_Type != 99:
+
+              aux = "t" + str(availTemp)
+              availTemp = availTemp + 1
+              memPos = AVAIL(context,left_Type,1,0)
+              #print("ME REGRESO LA MEMORIA> ", memPos)
+              DiTemp[aux] = memPos
+              print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
+              quad = generate_Quad("SumaBase",result,middle,memPos)
+              quads = quads + [quad]
               #quad = [operator, left_operand , ""  , result ]
               #result = 
               print("Lo que envio en ass->", operator, left_operand, "", result)
-              quad = generate_Quad(operator, left_operand, "", result)
-              quad[3] = quad[3] + p[-4]
-              print("aquipapu! ->",p[-4] )
+              quad = generate_Quad(operator, left_operand, "", memPos)
+              print("aquipapu! ->",middle )
               print("El nuevo quad !***->", quad)
               quads = quads + [quad]
           else:
@@ -2004,5 +2081,5 @@ def separateArrayMem(context,lim_sup,arrType):
 import ply.yacc as yacc
 parser = yacc.yacc()
 #yacc.yacc()
-file = open("prog.txt", "r")
+file = open("test.txt", "r")
 yacc.parse(file.read())

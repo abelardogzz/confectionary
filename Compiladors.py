@@ -35,7 +35,7 @@ def LoadProgram():
     print("Cargando PRograma")
     programa = codigo.get("1.0",'end-1c')
     print(programa)
-    arch = open("prog.txt","w")
+    arch = open("test.txt","w")
     arch.write(programa)
     arch.close()
     CompilaProg()
@@ -88,13 +88,18 @@ def EjecutarPrograma():
     const = False
     print("ejecutando programa")
     arch = open("res.txt","r")
+    #Agrega el priemr goto
     quad = arch.readline()
+    quad = ChangeQuad(quad)
+    quads.append(quad)
 
     #Carga los quads de Modulos y ejecucion
-    while(quad != "%%\n"):
+    while(True):
+        quad = arch.readline()
+        if quad == "%%\n":
+            break
         quad = ChangeQuad(quad)
         quads.append(quad)
-        quad = arch.readline()
         #print(quad)
     
         #Carga las constantes
@@ -188,6 +193,28 @@ def IniciaEjecucion():
         elif op == 27:
             print("GotoF")
             GotoF(quadEnNum[1],quadEnNum[3])
+        elif op == 30:
+            print("show")
+            
+        elif op == 31:
+            print("flavour")
+            
+        elif op == 32:
+            print("Ratio")
+            
+        elif op == 33:
+            print("drwCup")
+            
+        elif op == 34:
+            print("drwCane")
+            
+        elif op == 35:
+            print("drwChoc")
+            
+        elif op == 36:
+            print("read")
+            
+
         
         #Aumenta el Program Counter
         pc = pc + 1
@@ -348,7 +375,7 @@ codigo = tk.Text(dialog_frame)
 codigo.pack(side="bottom")
 tk.Button(dialog_frame,text='Compilar',command = LoadProgram).pack(side="top")
 #Carga el programa desde el ultimo que se corrio
-arch = open("prog.txt","r")
+arch = open("test.txt","r")
 codigo.insert("1.0",arch.read())
 arch.close()
 #Btn para ejectuar

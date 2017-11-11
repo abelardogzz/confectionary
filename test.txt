@@ -9,7 +9,7 @@ var int inTres;
 	var bool siempre;
 
 var string cosa;
-recipe int funcionPrueba(int name, int[] yolo, int age){ 
+recipe int funcionPrueba(int name, int age){ 
 	var int inCuatro;
 	name = 2 + 3;
 	show("si");
@@ -38,7 +38,7 @@ confectionary(){
 	inTres = 9*3;
 	r2D2 = 3.4 + (3 + 4);
 	newString = "hola2";
-	
+	inUno = 3;
 	
 
 
@@ -50,6 +50,7 @@ confectionary(){
 
 	repeat(inUno == 3){
 		ration(4);
+		inUno = inUno +1;
 	};
 	
 
@@ -67,6 +68,7 @@ confectionary(){
 
 	make{
 		ration(6);
+		inUno = inUno + 1;
 	}repeat(6>inUno);
 	
 }
