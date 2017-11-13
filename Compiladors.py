@@ -19,6 +19,10 @@ ModDic = dict()
 t= turtle.Turtle()
 
 
+#Variable de racion
+ration = 1
+
+
 def printDict(d):
     for x in d:
         print(x)
@@ -85,6 +89,10 @@ def LoadConst(q):
 def EjecutarPrograma():
     global quads
     global pc
+    global t
+    t.shape("turtle")
+    #t.circle(80)
+    #t.screen.mainloop()
     pc = 0
     quads.clear()
 
@@ -200,19 +208,27 @@ def IniciaEjecucion():
             Muestra(quadEnNum[1])
         elif op == 31:
             print("flavour")
-            
+            #Sabroso(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 32:
             print("Ratio")
-            
+            #Racion(quadEnNum[1])
         elif op == 33:
             print("drwCup")
-            
+            #DibujaPastel(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 34:
             print("drwCane")
-            
+            #Aumenta para procesar el siguiente quad
+            pc = pc + 1
+            #obtiene el quad en el formato esperado
+            aux = GetOperands(quads[pc])
+            #DibujaLinea(quadEnNum[1],quadEnNum[2],aux[1],aux[2])
         elif op == 35:
             print("drwChoc")
-            
+            #Aumenta para procesar el siguiente quad
+            pc = pc + 1
+            #obtiene el quad en el formato esperado
+            aux = GetOperands(quads[pc])
+            #DibujaBarra(quadEnNum[1],quadEnNum[2],aux[1],aux[2])
         elif op == 36:
             print("read")
             
@@ -312,20 +328,59 @@ def Muestra(dir):
     print(val)
     pass
 def Sabroso(dirR,dirG,dirB):
+    global t 
+    r = SacaValorDict(dirR)
+    g = SacaValorDict(dirG)
+    b = SacaValorDict(dirB)
+    t.color(r,g,b)
 
     pass
 def Racion(dir):
+    global ration
+    ration = SacaValorDict(dir)
     pass
 def DibujaPastel(dirRad,dirX,dirY):
+    global t 
+    global ration
+    rad = SacaValorDict(dirRad)
+    t.down()
+    t.setx( SacaValorDict(dirX))
+    t.sety( SacaValorDict(dirY))
+    t.circle(rad*ration)
+    t.up()
+    t.home()
     pass
 def DibujaLinea(dirX1,dirY1,dirX2,dirY2):
 
     pass
 def DibujaBarra(dirX1,dirY1,dirX2,dirY2):
+    global t
+    global ration
+
+    x1 = SacaValorDict(dirX1)
+    y1 = SacaValorDict(dirY1)
+    x2 = SacaValorDict(dirX2)
+    y2 = SacaValorDict(dirY2)
+
+
+    #Mueve el cursos a donde debe de inicar
+    t.goto(x1,x2)
+    #Pone el lapiz para escribir
+    t.down()
+    t.fd(x2*ration)
+    t.lt(90)
+    t.fd(y2*ration)
+    t.lt(90)
+    t.fd(x2*ration)
+    t.lt(90)
+    t.fd(y2*ration)
+    t.up()
+    t.home()
     pass
 def Lee():
     #Pues lee en algo
     pass
+
 
 
 
@@ -408,3 +463,4 @@ tk.Button(dialog_frame,text='Ejecutar',command =EjecutarPrograma ).pack(side="to
 #BTN de cierre
 tk.Button(dialog_frame, text="Cerrar", command=quit).pack(side="right")
 root.mainloop()
+t.screen.mainloop()
