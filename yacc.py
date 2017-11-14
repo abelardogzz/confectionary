@@ -6,7 +6,7 @@ from lex import tokens
 
 DEBUG = True
 
-
+#13 de noviembre 
 #from enum import Enum
 #class Types(Enum):
 #    INT = 0
@@ -35,7 +35,7 @@ DEBUG = True
 # 33-drCup
 # 34-drCane
 # 35-drChoc
-# 35-READ
+# 36-READ
 # 40-PARAM
 # 41-ERA
 # 42-GOSUB
@@ -104,7 +104,6 @@ TypeStack = list()
 quads = list()
 
 
-
 def printDic1(p):
     arch = open("res.txt","a")
     for x in p:
@@ -123,13 +122,15 @@ def printDic(p):
     arch.write("%%\n")
     arch.close()
 
-
 # GRAMMAR
 #program : PROGRAM ID ":" globals main
 def p_programdef(p):
     '''programdef : PROGRAM ID ":" seen_program_start globals main'''
     print("Program Approved!");
     
+    #printDic1(DiVars)
+    #printDic1(DiModules)
+    #printDic1(DiTemp)
     print("pilaO = ",PilaO)
     print("TypeStack = ",TypeStack)
     print("POper = ",POper)
@@ -241,11 +242,15 @@ def p_globals(p):
     pass
 
 def p_recipedef(p):
-    '''recipedef : RCP brecipeaux "{" var seen_all_recipe_vars statement  RETURN "(" recipereturn ")" ";" "}" ";" seen_endproc
+    '''recipedef : RCP brecipeaux "{" var seen_all_recipe_vars statement return_statement "}" ";" seen_endproc
   | RCP VOID ID seen_recipe_name "(" brecipe seen_parameters ")" "{" var seen_all_recipe_vars statement  "}" ";" seen_endproc'''
 
     #print("recipe");
     pass
+
+def p_return_statement(p):
+  '''return_statement : RETURN "(" recipereturn ")" ";" '''
+  pass
 
 def p_seen_endproc(p):
   '''seen_endproc :'''
@@ -407,7 +412,8 @@ def p_type_matrix(p):
 
 
 def p_recipereturn(p):
-  '''recipereturn : exp'''
+  '''recipereturn : exp
+  | funccall'''
   global TypeStack
   global incrementalNumberFun
   global PilaO
@@ -1634,10 +1640,14 @@ def p_seen_pn_times_div(p):
     pass
 
 def p_condition(p):
-    '''condition : IF "("  expression condssymbols seen_exp_in_if ")" "{" statement bif "}" bcond ";" seen_end_if''' 
+    '''condition : IF "("  expression condssymbols seen_exp_in_if ")" "{" statement bif condition_return_aux "}" bcond ";" seen_end_if''' 
     #| IF "(" expression ")" "{" statement "}" ELSE "{" statement "}"  ";"'''
     #print("condition")
     pass
+
+def p_condition_return_aux(p):
+  '''condition_return_aux : return_statement
+  | empty'''
 
 def p_seen_end_if(p):
   '''seen_end_if :'''
@@ -1718,7 +1728,7 @@ def p_bif(p):
     pass
 
 def p_bcond(p):
-    '''bcond : ELSE seen_else "{" statement bif '}'
+    '''bcond : ELSE seen_else "{" statement bif condition_return_aux '}'
     | empty'''
     #print("bif");
     pass

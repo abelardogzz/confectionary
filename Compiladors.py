@@ -91,6 +91,8 @@ def EjecutarPrograma():
     global pc
     global t
     t.shape("turtle")
+    t.screen.colormode(255)
+    t.up()
     #t.circle(80)
     #t.screen.mainloop()
     pc = 0
@@ -145,6 +147,7 @@ def getInt(i):
 def IniciaEjecucion():
     global pc
     global quads
+    auxCoords = []
     print("inicia EJECUCION")
     
 
@@ -208,27 +211,30 @@ def IniciaEjecucion():
             Muestra(quadEnNum[1])
         elif op == 31:
             print("flavour")
-            #Sabroso(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+            Sabroso(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 32:
             print("Ratio")
-            #Racion(quadEnNum[1])
+            Racion(quadEnNum[1])
         elif op == 33:
             print("drwCup")
-            #DibujaPastel(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+            DibujaPastel(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 34:
             print("drwCane")
-            #Aumenta para procesar el siguiente quad
-            pc = pc + 1
-            #obtiene el quad en el formato esperado
-            aux = GetOperands(quads[pc])
-            #DibujaLinea(quadEnNum[1],quadEnNum[2],aux[1],aux[2])
+            if len(auxCoords) == 2:
+                DibujaLinea(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
+                auxCoords.clear()
+            else:
+                auxCoords.append(quadEnNum[1])
+                auxCoords.append(quadEnNum[2])
+
         elif op == 35:
             print("drwChoc")
-            #Aumenta para procesar el siguiente quad
-            pc = pc + 1
-            #obtiene el quad en el formato esperado
-            aux = GetOperands(quads[pc])
-            #DibujaBarra(quadEnNum[1],quadEnNum[2],aux[1],aux[2])
+            if len(auxCoords) == 2:
+                DibujaBarra(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
+                auxCoords.clear()
+            else:
+                auxCoords.append(quadEnNum[1])
+                auxCoords.append(quadEnNum[2])            
         elif op == 36:
             print("read")
             
@@ -343,14 +349,30 @@ def DibujaPastel(dirRad,dirX,dirY):
     global t 
     global ration
     rad = SacaValorDict(dirRad)
-    t.down()
     t.setx( SacaValorDict(dirX))
     t.sety( SacaValorDict(dirY))
+
+    t.down()
     t.circle(rad*ration)
     t.up()
     t.home()
     pass
 def DibujaLinea(dirX1,dirY1,dirX2,dirY2):
+    global t
+    global ration
+    
+    x1 = SacaValorDict(dirX1)
+    y1 = SacaValorDict(dirY1)
+    x2 = SacaValorDict(dirX2)
+    y2 = SacaValorDict(dirY2)
+
+    #Mueve el cursos a donde debe de inicar
+    t.goto(x1,y1)
+    t.down()
+    t.goto(x2*ration,y2*ration)
+
+    t.up()
+    t.home()
 
     pass
 def DibujaBarra(dirX1,dirY1,dirX2,dirY2):
@@ -364,7 +386,7 @@ def DibujaBarra(dirX1,dirY1,dirX2,dirY2):
 
 
     #Mueve el cursos a donde debe de inicar
-    t.goto(x1,x2)
+    t.goto(x1,y1)
     #Pone el lapiz para escribir
     t.down()
     t.fd(x2*ration)

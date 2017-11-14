@@ -43,32 +43,29 @@ confectionary(){
 
 
 
-	ration(4* inTres);
+	
 
-	flavor(2,3,4);
+	flavor(200,100,20);
 
 
-	repeat(inUno == 3){
-		ration(4);
-		inUno = inUno +1;
+	ration(5);
+		drawCane(100,0,100,100);		
+		drawCane(50,50,30,30);		
+		drawCane(20,20,10,10);		
+		drawCane(30,30,10,10);		
+
+	drawChocoBar(30,25,20,15);
+
+
+	repeat(inUno < 100){
+		inUno = inUno +10;
+
 	};
 	
 
 
-	if(inUno < inTres){
-		inTres = 20;
-	}
-	else{
-		show(inTres*4);
-		r2D2 = 4.5;
 
-	};
 
-	read();
-
-	make{
-		ration(6);
-		inUno = inUno + 1;
-	}repeat(6>inUno);
+	
 	
 }
