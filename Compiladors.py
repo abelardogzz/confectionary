@@ -6,6 +6,14 @@ import turtle
 
 #Program Couter
 pc = 0
+#Inicio de Espacio de memoria libre y Arreglo de parametros
+dirMemLocal = 20000
+EspacioMemoriaLocal = 0
+DirMemoriaLocalLibre = 0
+arrParams = []
+InFuncall = False
+#Program Counter Temp
+pcTemps =[]
 #Dictionaries
 iDic = dict()
 fDic = dict()
@@ -14,6 +22,9 @@ bDic = dict()
 quads = list()
 #Diccionario para las funciones
 ModDic = dict()
+LocalMemDic = dict()
+#Stack de MemoriaLocal Dormida
+MemLocalDormida = []
 
 #Crea Tortuga
 t= turtle.Turtle()
@@ -47,11 +58,21 @@ def LoadProgram():
     arch.close()
     CompilaProg()
     pass
+
+def printLog(t):
+    t = t + "\n"
+    consola.insert("end",t)
+    pass
     
 #Llama a yacc para procesar el archivo de ejecucion
 def CompilaProg():
     command = "hola.bat"
     program = subprocess.run(command,stdout=subprocess.PIPE)
+    resultado = str(program.stdout[-25:])
+    if "Program Approved" in resultado:
+        lblAviso['text'] = "Succesfull build"
+    else:
+        lblAviso['text'] = resultado
     print( program.stdout)
     #print(text)
     pass
@@ -97,6 +118,7 @@ def EjecutarPrograma():
     #t.screen.mainloop()
     pc = 0
     quads.clear()
+    consola.delete("1.0","end")
 
     const = False
     print("ejecutando programa")
@@ -144,12 +166,30 @@ def getInt(i):
         i = -1
     return i
 
+def LoadModulos(PCmain):
+    global quads
+    i=1
+    while i<PCmain:
+        print(quads[i])
+        i = i +1
+
+    pass
+
 def IniciaEjecucion():
     global pc
     global quads
+    global InFuncall
+    global arrParams
+    global EspacioMemoriaLocal
+
+
     auxCoords = []
     print("inicia EJECUCION")
     
+    quadEnNum = GetOperands(quads[pc])
+    #op = quadEnNum[3] - 1
+    #Carga las funciones
+    LoadModulos(quadEnNum[3]-1)
 
     while( pc < len(quads)):
 
@@ -206,19 +246,19 @@ def IniciaEjecucion():
         elif op == 27: #GotoF
             print("GotoF")
             GotoF(quadEnNum[1],quadEnNum[3])
-        elif op == 30: #
+        elif op == 30: #show 
             print("show")
             Muestra(quadEnNum[1])
-        elif op == 31:
+        elif op == 31: #Flavour
             print("flavour")
             Sabroso(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 32:
+        elif op == 32: #ration
             print("Ratio")
             Racion(quadEnNum[1])
-        elif op == 33:
+        elif op == 33: #DRWCUP
             print("drwCup")
             DibujaPastel(quadEnNum[1],quadEnNum[2],quadEnNum[3])
-        elif op == 34:
+        elif op == 34: #DRWCane
             print("drwCane")
             if len(auxCoords) == 2:
                 DibujaLinea(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
@@ -226,8 +266,7 @@ def IniciaEjecucion():
             else:
                 auxCoords.append(quadEnNum[1])
                 auxCoords.append(quadEnNum[2])
-
-        elif op == 35:
+        elif op == 35: #DRWChoc
             print("drwChoc")
             if len(auxCoords) == 2:
                 DibujaBarra(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
@@ -235,16 +274,112 @@ def IniciaEjecucion():
             else:
                 auxCoords.append(quadEnNum[1])
                 auxCoords.append(quadEnNum[2])            
-        elif op == 36:
+        elif op == 36: #READ
             print("read")
+        elif op == 40: #param
+            print("PARAM")
+            arrParams.append(quadEnNum[1])
+
+        elif op == 41: #ERA
+            print("ERA")
+            InFuncall = True
+            #Checar los pcTemps para ver de donde es la llamada
+            CargaERA( quadEnNum[2])
+            
+
+        elif op == 42: #GOSUB
+            print("GOsub")
+            CargaParamsYVariables(quadEnNum[2])
+            
+            #agregar a pcTemps los
+        elif op == 43: #ENDPROC
+            print("ENDPROC")
+            InFuncall = False
+            #pc = pcTemps.pop()
+            AcabaLlamadaAFunc()
+
+        elif op == 44: #return
+            print("RETooN")
+            AcabaLlamadaAFunc(quadEnNum[1])
             
 
         
         #Aumenta el Program Counter
         pc = pc + 1
+       
 
     print("Se acabo EL PROGRAMA WUUU")
+    printLog("Ejecucion Terminada")
     pass
+
+def CargaERA(tam):
+    global EspacioMemoriaLocal
+    global pcTemps
+    global MemLocalDormida
+    global LocalMemDic
+
+    EspacioMemoriaLocal = EspacioMemoriaLocal + tam
+
+    if len(pcTemps) >0: #Hay un llamada dentro de una funcion
+        MemLocalDormida.append(LocalMemDic)
+        LocalMemDic.clear()
+
+
+    pass
+def AcabaLlamadaAFunc(dirRet=None):
+    global EspacioMemoriaLocal
+    global LocalMemDic
+    global MemLocalDormida
+    global pc
+
+    if dirRet is not None:
+        val = SacaValorDict(dirRet)
+        AgregaValorDict(dirRet,val)
+
+    LocalMemDic.clear()
+    pc = pcTemps.pop()
+    try:
+        LocalMemDic = MemLocalDormida.pop()
+    except IndexError:
+        print("Se acaboaron las funcalls")
+        EspacioMemoriaLocal = 0
+
+
+    pass
+
+def CargaParamsYVariables(salto):
+    global EspacioMemoriaLocal#tamaño
+    global arrParams
+    global dirMemLocal #20000
+    global LocalMemDic
+    global MemLocalDormida
+    global pcTemps
+    global pc
+
+   
+
+    while EspacioMemoriaLocal >0:
+        if len(arrParams) > 0:
+            print("dCarga Params")
+            LocalMemDic[dirMemLocal] =  arrParams.pop()
+            dirMemLocal = dirMemLocal + 1
+        else:
+            print("Carga espacios para memoria local")
+            LocalMemDic[dirMemLocal] = None
+            dirMemLocal = dirMemLocal + 1
+
+        EspacioMemoriaLocal = EspacioMemoriaLocal -1
+
+    #Carga la direccion de regreso
+    pcTemps.append(pc +1)
+    arrParams.clear()
+    pc = salto - 1
+
+
+
+
+    pass
+
 def Suma(dirA,dirB,dirRes):
     a = SacaValorDict(dirA)
     b = SacaValorDict(dirB)
@@ -332,6 +467,7 @@ def RelacionAND(dirA,dirB,dirRes):
 def Muestra(dir):
     val = SacaValorDict(dir)
     print(val)
+    printLog(val)
     pass
 def Sabroso(dirR,dirG,dirB):
     global t 
@@ -412,59 +548,96 @@ def AgregaValorDict(dir,valor):
     global fDic
     global sDic
     global bDic
+    global LocalMemDic
     #Checa si es entero
-    if dir>= 10000 and dir< 12500 or dir>= 20000 and dir< 22500 or dir>= 30000 and dir< 32500 or dir>= 40000 and dir< 42500:
+    if dir>= 10000 and dir< 12500  or dir>= 30000 and dir< 32500 or dir>= 40000 and dir< 42500:
         iDic[dir] = int(valor)
     #Checa si es flotante
-    if dir>= 12500 and dir< 15000 or dir>= 22500 and dir< 25000 or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
+    if dir>= 12500 and dir< 15000  or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
         fDic[dir] = float(valor)
     #Checa si es String
-    if dir>= 15000 and dir< 17500 or dir>= 25000 and dir< 27500 or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
+    if dir>= 15000 and dir< 17500  or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
         valor = valor[2:-2]
         sDic[dir] = valor
     #Checa si es booleano
-    if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
+    if dir>= 17500 and dir< 20000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
         if type(valor ) is str:
             valor.lower()
         if valor == "yes" or valor :
             bDic[dir] = True
         if valor == "no"  or not valor: 
             bDic[dir] = False
+
+    if dir>= 20000 and dir< 22500 or dir>= 22500 and dir< 25000 or dir>= 25000 and dir< 27500 :
+        LocalMemDic[dir] = valor
+    elif  dir>= 27500 and dir< 30000:
+        if type(valor ) is str:
+            valor.lower()
+        if valor == "yes" or valor :
+            LocalMemDic[dir] = True
+        if valor == "no"  or not valor: 
+            LocalMemDic[dir] = False
+
+
     pass
 def SacaValorDict(dir):
     global iDic
     global fDic
     global sDic
     global bDic
+    global LocalMemDic
+    global pc
+    global quads
+
     #Checa si es entero para regresarlo
     
     if dir>= 10000 and dir< 12500 or dir>= 20000 and dir< 22500 or dir>= 30000 and dir< 32500 or dir>= 40000 and dir< 42500:
         try: 
             return iDic[dir] 
         except KeyError :
-            print("Warning: Variable no Inicializada")
-            return 0
+            try:
+                return LocalMemDic[dir]
+            except KeyError:
+                print("Warning: Variable no Inicializada")
+                printLog("Warning: Variable no Inicializada")
+                pc = len(quads)
+                #exit()
     #Checa si es flotante para regresarlo
     if dir>= 12500 and dir< 15000 or dir>= 22500 and dir< 25000 or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
         try:
             return fDic[dir] 
         except KeyError:
-            print("Warning: Variable no Inicializada")
-            return 0.0
+            try:
+                return LocalMemDic[dir]
+            except KeyError:
+                print("Warning: Variable no Inicializada")
+                printLog("Warning: Variable no Inicializada")
+                pc = len(quads)
+                #exit()
     #Checa si es String para regresarlo
     if dir>= 15000 and dir< 17500 or dir>= 25000 and dir< 27500 or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
         try:
             return sDic[dir]
         except KeyError:
-            print("Warning: Variable no Inicializada")
-            return ""
+            try:
+                return LocalMemDic[dir]
+            except KeyError:
+                print("Warning: Variable no Inicializada")
+                printLog("Warning: Variable no Inicializada")
+                pc = len(quads)
+                #exit()
     #Checa si es booleano para regresarlo
     if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
         try:
             return bDic[dir]
         except KeyError:
-            print("Warning: Variable no Inicializada")
-            return False
+            try:
+                return LocalMemDic[dir]
+            except KeyError:
+                print("Warning: Variable no Inicializada")
+                printLog("Warning: Variable no Inicializada")
+                pc = len(quads)
+                #exit()
  
 root = tk.Tk()
 #app = App(root)
@@ -472,9 +645,12 @@ root.title("Program FOOD")
 dialog_frame = tk.Frame(root)
 dialog_frame.pack()
 #Area de codigo
-tk.Label(dialog_frame,text="Escribe tu codigo abajo").pack(side="top")
+consola = tk.Text(dialog_frame,height = 5)
+consola.pack(side="bottom")
 codigo = tk.Text(dialog_frame)
 codigo.pack(side="bottom")
+
+
 tk.Button(dialog_frame,text='Compilar',command = LoadProgram).pack(side="top")
 #Carga el programa desde el ultimo que se corrio
 arch = open("test.txt","r")
@@ -482,7 +658,17 @@ codigo.insert("1.0",arch.read())
 arch.close()
 #Btn para ejectuar
 tk.Button(dialog_frame,text='Ejecutar',command =EjecutarPrograma ).pack(side="top")
+tk.Label(dialog_frame,text="Escribe tu codigo abajo").pack(side="top")
+
+lblAviso = tk.Label(dialog_frame,text="Resultados de compilacion")
+lblAviso.pack(side="left")
 #BTN de cierre
 tk.Button(dialog_frame, text="Cerrar", command=quit).pack(side="right")
+printLog("hola\n")
+printLog("Prueba\n")
+
+
 root.mainloop()
 t.screen.mainloop()
+
+
