@@ -325,8 +325,9 @@ def CargaERA(tam):
 
     if len(pcTemps) >0: #Hay un llamada dentro de una funcion
         #Guarda en ARREGLO el DIC de la que se duerme
-        MemLocalDormida.append(LocalMemDic)
-        LocalMemDic.clear()
+        aux = LocalMemDic
+        MemLocalDormida.append(aux)
+        LocalMemDic = {}
         dirMemLocal = 20000
     pass
 
@@ -379,6 +380,7 @@ def CargaParamsYVariables(salto):
 
         EspacioMemoriaLocal = EspacioMemoriaLocal -1
 
+    dirMemLocal = 20000
     #Carga la direccion de regreso
     pcTemps.append(pc)
     arrParams.clear()
