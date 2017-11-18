@@ -60,7 +60,7 @@ def LoadProgram():
     pass
 
 def printLog(t):
-    t = t + "\n"
+    t = str(t) + "\n"
     consola.insert("end",t)
     pass
     
@@ -278,71 +278,80 @@ def IniciaEjecucion():
             print("read")
         elif op == 40: #param
             print("PARAM")
-            arrParams.append(quadEnNum[1])
+            CargaParam(quadEnNum[1])
+            #arrParams.append(quadEnNum[1])
 
         elif op == 41: #ERA
             print("ERA")
             InFuncall = True
             #Checar los pcTemps para ver de donde es la llamada
             CargaERA( quadEnNum[2])
-            
 
         elif op == 42: #GOSUB
             print("GOsub")
             CargaParamsYVariables(quadEnNum[2])
-            
-            #agregar a pcTemps los
         elif op == 43: #ENDPROC
             print("ENDPROC")
             InFuncall = False
             #pc = pcTemps.pop()
             AcabaLlamadaAFunc()
-
         elif op == 44: #return
             print("RETooN")
-            AcabaLlamadaAFunc(quadEnNum[1])
-            
+            InFuncall = False
+            AcabaLlamadaAFunc(quadEnNum[3],quadEnNum[1])
 
-        
         #Aumenta el Program Counter
-        pc = pc + 1
-       
+        pc = pc + 1  
 
     print("Se acabo EL PROGRAMA WUUU")
     printLog("Ejecucion Terminada")
     pass
 
+def CargaParam(p):
+    global arrParams
+    #val = SacaValorDict(p)
+    arrParams.append(SacaValorDict(p))
+    pass
+
+#Recibe el tamaño(Cant. Espacio de Memoria) de la funcion e Inicia lo cont
 def CargaERA(tam):
     global EspacioMemoriaLocal
     global pcTemps
     global MemLocalDormida
     global LocalMemDic
+    global dirMemLocal #20000
 
-    EspacioMemoriaLocal = EspacioMemoriaLocal + tam
+    EspacioMemoriaLocal = tam
 
     if len(pcTemps) >0: #Hay un llamada dentro de una funcion
+        #Guarda en ARREGLO el DIC de la que se duerme
         MemLocalDormida.append(LocalMemDic)
         LocalMemDic.clear()
-
-
+        dirMemLocal = 20000
     pass
-def AcabaLlamadaAFunc(dirRet=None):
+
+def AcabaLlamadaAFunc(dirGlobal=None ,dirRet=None):
     global EspacioMemoriaLocal
     global LocalMemDic
     global MemLocalDormida
     global pc
 
-    if dirRet is not None:
-        val = SacaValorDict(dirRet)
-        AgregaValorDict(dirRet,val)
+    if dirRet != dirGlobal: #Si ambos son NONE, no hubo return(44)
+        val = SacaValorDict(dirRet) #Valor de retorno de una funcion
+        #Necesito la DIR GLOBAL DE LA FUNCION
+        AgregaValorDict(dirGlobal,val) 
+        #AgregaValorDict(dirRet,val) #Lo vuelve a agregar a Local
 
     LocalMemDic.clear()
     pc = pcTemps.pop()
-    try:
+    #Checar si ya es regreso a Ejecucion Principal
+    if len(pcTemps) > 0: #Aun queda otra FuncionIncompleta
         LocalMemDic = MemLocalDormida.pop()
-    except IndexError:
-        print("Se acaboaron las funcalls")
-        EspacioMemoriaLocal = 0
+    #try:
+    #    LocalMemDic = MemLocalDormida.pop()
+    #except IndexError:
+    #    print("Se acaboaron las funcalls")
+        #EspacioMemoriaLocal = 0
 
 
     pass
@@ -371,13 +380,10 @@ def CargaParamsYVariables(salto):
         EspacioMemoriaLocal = EspacioMemoriaLocal -1
 
     #Carga la direccion de regreso
-    pcTemps.append(pc +1)
+    pcTemps.append(pc)
     arrParams.clear()
+    #Se resta porque despue en IniciaEjecucion se le suma uno
     pc = salto - 1
-
-
-
-
     pass
 
 def Suma(dirA,dirB,dirRes):
@@ -580,6 +586,8 @@ def AgregaValorDict(dir,valor):
 
 
     pass
+#Con la direccion Obtiene el valor del diccionario Correspondiente
+#En caso de no tener un valor asignado, regresa un valor por defecto y avisa en consola
 def SacaValorDict(dir):
     global iDic
     global fDic
@@ -600,7 +608,8 @@ def SacaValorDict(dir):
             except KeyError:
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
-                pc = len(quads)
+                return 0
+                #pc = len(quads)
                 #exit()
     #Checa si es flotante para regresarlo
     if dir>= 12500 and dir< 15000 or dir>= 22500 and dir< 25000 or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
@@ -612,7 +621,8 @@ def SacaValorDict(dir):
             except KeyError:
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
-                pc = len(quads)
+                return 0.0
+                #pc = len(quads)
                 #exit()
     #Checa si es String para regresarlo
     if dir>= 15000 and dir< 17500 or dir>= 25000 and dir< 27500 or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
@@ -624,7 +634,8 @@ def SacaValorDict(dir):
             except KeyError:
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
-                pc = len(quads)
+                return ""
+                #pc = len(quads)
                 #exit()
     #Checa si es booleano para regresarlo
     if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
@@ -636,7 +647,8 @@ def SacaValorDict(dir):
             except KeyError:
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
-                pc = len(quads)
+                return False
+                #pc = len(quads)
                 #exit()
  
 root = tk.Tk()
@@ -664,8 +676,8 @@ lblAviso = tk.Label(dialog_frame,text="Resultados de compilacion")
 lblAviso.pack(side="left")
 #BTN de cierre
 tk.Button(dialog_frame, text="Cerrar", command=quit).pack(side="right")
-printLog("hola\n")
-printLog("Prueba\n")
+printLog("hola")
+printLog("Prueba")
 
 
 root.mainloop()
