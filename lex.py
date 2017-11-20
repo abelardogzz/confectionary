@@ -39,7 +39,7 @@ reserved = {
 tokens = ['ID', 'CTEINT', 'CTEFLOAT', 'CTESTRING', 'GET','LET', 'EQUAL', 'DIFF', 'AND', 'OR',] + list(reserved.values())
 
 #One digit symbols
-literals = ['*', '/', '+', '-', '>', '<', '=', '.', ',', ':', ';', '(', ')', '{', '}', '[', ']']
+literals = ['*', '/', '+', '-', '>', '<', '=', '.', ',', ':', ';', '(', ')', '{', '}', '[', ']','_']
 
 
 #Multi-Digit symbols

@@ -1,6 +1,7 @@
 import tkinter as tk
 import subprocess
 import turtle
+from time import sleep
 
 
 
@@ -51,6 +52,7 @@ def LoadProgram():
     #global codigo
     #txt = self.codigo
     print("Cargando PRograma")
+
     programa = codigo.get("1.0",'end-1c')
     print(programa)
     arch = open("test.txt","w")
@@ -66,6 +68,7 @@ def printLog(t):
     
 #Llama a yacc para procesar el archivo de ejecucion
 def CompilaProg():
+    lblAviso['text'] = ""
     command = "hola.bat"
     program = subprocess.run(command,stdout=subprocess.PIPE)
     resultado = str(program.stdout[-25:])
@@ -73,7 +76,7 @@ def CompilaProg():
         lblAviso['text'] = "Succesfull build"
     else:
         lblAviso['text'] = resultado
-    print( program.stdout)
+    #print( program.stdout)
     #print(text)
     pass
 
@@ -323,12 +326,7 @@ def CargaERA(tam):
 
     EspacioMemoriaLocal = tam
 
-    if len(pcTemps) >0: #Hay un llamada dentro de una funcion
-        #Guarda en ARREGLO el DIC de la que se duerme
-        aux = LocalMemDic
-        MemLocalDormida.append(aux)
-        LocalMemDic = {}
-        dirMemLocal = 20000
+
     pass
 
 def AcabaLlamadaAFunc(dirGlobal=None ,dirRet=None):
@@ -366,7 +364,12 @@ def CargaParamsYVariables(salto):
     global pcTemps
     global pc
 
-   
+    if len(pcTemps) >0: #Hay un llamada dentro de una funcion
+        #Guarda en ARREGLO el DIC de la que se duerme
+        aux = LocalMemDic
+        MemLocalDormida.append(aux)
+        LocalMemDic = {}
+        dirMemLocal = 20000
 
     while EspacioMemoriaLocal >0:
         if len(arrParams) > 0:
@@ -678,8 +681,8 @@ lblAviso = tk.Label(dialog_frame,text="Resultados de compilacion")
 lblAviso.pack(side="left")
 #BTN de cierre
 tk.Button(dialog_frame, text="Cerrar", command=quit).pack(side="right")
-printLog("hola")
-printLog("Prueba")
+#printLog("hola")
+#printLog("Prueba")
 
 
 root.mainloop()

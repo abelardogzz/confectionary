@@ -9,22 +9,43 @@ var int inTres;
 	var bool siempre;
 
 var string cosa;
-recipe int funcionPrueba(int name, int age){ 
-	var int inCuatro;
-	name = 2 + 3;
-	show("si");
-	show("hola!");
-	return(5+2); 
-	
-};	
-
-recipe int funcionDos(int param1, float name, float anotherNmae){ 
-	show("no"); return(param1+5); 
+recipe int funcionPrueba(int name){ 
+	var int aux;
+	if (name == 1 || name == 0){
+		return(1); 
+	}
+	else{
+		aux = _funcionPrueba(name - 1);
+		
+	};
+	return(name * aux); 
 };
 
-recipe void funciontres(string frase){  
-var int inSiete;
-show("hola!");
+recipe int fibo(int equis){ 
+	var int aux;
+	var int aux2;
+	if (equis == 1 || equis == 0){
+		return(1); 
+	}
+	else{
+		aux = _fibo(equis - 1);
+		aux2 = _fibo(equis - 2);	
+	};
+	return(aux + aux2); 
+};
+	
+
+recipe int funcionDos(int param1, int name, int anotherNmae){ 
+	show("no"); 
+	return(param1+5); 
+};
+
+recipe void funciontres(){  
+	var int inSiete;
+	drawChocoBar(30,25,20,15);
+	show("hola!");
+	inSiete =	_funcionDos(3,2,4);
+	show(inSiete);
  };
 
 confectionary(){
@@ -34,38 +55,29 @@ confectionary(){
 	var bool cierto;
 
 
-	
-	inTres = 9*3;
+	inTres = 3;
 	r2D2 = 3.4 + (3 + 4);
 	newString = "hola2";
 	inUno = 3;
 	
 
+	inUno = _funcionPrueba(5);
+	show("Imprime facto");
+	show(inUno);
 
-
-	
+	inUno = _fibo(6);
+	show("Imprime fibo");
+	show(inUno);	
 
 	flavor(200,100,20);
 
 
 	ration(5);
-		drawCane(100,0,100,100);		
-		drawCane(50,50,30,30);		
-		drawCane(20,20,10,10);		
-		drawCane(30,30,10,10);		
-
-	drawChocoBar(30,25,20,15);
-
-
-	repeat(inUno < 100){
-		inUno = inUno +10;
-
-	};
 	
+	drawCane(50,50,30,30);	
+	drawCupcake(10,20,20);
 
-
-
-
+	
 	
 	
 }
