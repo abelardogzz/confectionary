@@ -6,7 +6,7 @@ from lex import tokens
 
 DEBUG = True
 
-#v.milochomil
+#21 de nov
 #from enum import Enum
 #class Types(Enum):
 #    INT = 0
@@ -1168,7 +1168,6 @@ def p_seen_exp_in_params(p):
       exit(0)
     else:
       quad = generate_Quad(40,argument,"","param"+str(auxCont))
-      #quad = ["PARAM",argument,"","param"+str(auxCont)]
       quads = quads + [quad]
       auxCont +=1
   pass
@@ -1191,13 +1190,11 @@ def p_seen_pn_funcall_assign_array(p):
       if POper[-1] == '=':
 
         idName = p[-1]
-        #print("IDNAME->",idName)
         key = ""
         for k, v in DiVars.items():
             if idName == v or isinstance(v, list) and idName in v:
               if DiVars[k][0] == idName and (DiVars[k][3] == context or DiVars[k][3] == "global"):
                 key = k
-                #print("KEY->",key)
 
         result = DiVars[key][4]
         resultfun_type = DiVars[key][2]
@@ -1218,23 +1215,15 @@ def p_seen_pn_funcall_assign_array(p):
         global availTemp
         global DiTemp
         if result_Type != 99:
-
             aux = "t" + str(availTemp)
             availTemp = availTemp + 1
             memPos = AVAIL(context,left_Type,1,0)
-            #print("ME REGRESO LA MEMORIA> ", memPos)
             DiTemp[aux] = memPos
-            #print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
             quad = generate_Quad(51,left_operand,middle,memPos)
 
             quads = quads + [quad]
-            #quad = [operator, left_operand , ""  , result ]
-            #result = 
-            #print("Lo que envio en ass->", operator, left_operand, "", result)
             quad = generate_Quad(operator, "", "", memPos)
             quad[1] = result
-            #print("aquipapu! ->",middle )
-            #print("El nuevo quad !***->", quad)
             quads = quads + [quad]
         else:
             type_mismatch_error()
@@ -1252,7 +1241,6 @@ def p_seen_pn_funcall_assign(p):
       if idName == v or isinstance(v, list) and idName in v:
         if DiVars[k][0] == idName and (DiVars[k][3] == context or DiVars[k][3] == "global"):
           key = k
-          #print("KEY->",key)
 
 
   result = DiVars[key][4]
@@ -1267,13 +1255,8 @@ def p_seen_pn_funcall_assign(p):
   result_Type = CuboSem.CuboSemantico[left_Type][resultfun_type][operator]
   global quads
   if result_Type != 99:
-      #quad = [operator, left_operand , ""  , result ]
-      #print("Lo que envio en ass->", operator, left_operand, "", result)
       quad = generate_Quad(operator, "", "", left_operand)
-      #print("r:",result)
-      #print("lo:",left_operand)
       quad[1] = result
-      #print("El nuevo quad ->", quad)
       quads = quads + [quad]
   else:
       type_mismatch_error()
@@ -1314,14 +1297,8 @@ def p_seen_access_array(p):
     exit(0)
   upperLimit = DiVars[key][5][1]
 
-  #if result>upperLimit:
-   # print("Array index out of bounds!")
-    #exit(0)
-
   quad = generate_Quad(50,result,0,upperLimit)
   quads = quads + [quad]
-  #print("upperLimit->", upperLimit)
-  #print("This is the key! -> ", key)
   result = quad[1]
   p[0] = result
   PilaO = PilaO + [result]
@@ -1362,10 +1339,6 @@ def p_seen_second_matrix_access(p):
 
   PilaO = PilaO + [memPos]
   TypeStack = TypeStack + [0]
-
-
-
-
   pass
 
 
@@ -1441,10 +1414,6 @@ def p_seen_pn_ass_id_arr(p):
   p[0] = key
   pass
 
-#def p_seen_ok(p):
-#    '''seen_ok :'''
-#    print("si vi el funccall")
-#    pass
 
 def p_seen_pn_ass_id(p):
     '''seen_pn_ass_id :'''
@@ -1555,9 +1524,13 @@ def p_seen_pn_assign(p):
 
 
 def p_write(p):
-    '''write : SHOW "(" exp seen_pn_show bwrite ")" ";" 
-    | SHOW "(" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_array seen_end_array seen_pn_show bwrite ")" ";"
-    | SHOW "(" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_matrix_first "[" exp "]" seen_second_matrix_access seen_end_array seen_pn_show bwrite ")" ";"'''
+    '''write : SHOW "(" write_a '''
+    pass
+
+def p_write_a(p):
+    '''write_a : exp seen_pn_show bwrite ")" ";" 
+    | "_" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_array seen_end_array seen_pn_show bwrite ")" ";"
+    | "_" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_matrix_first "[" exp "]" seen_second_matrix_access seen_end_array seen_pn_show bwrite ")" ";"'''
     #print("write");
     pass
 
@@ -1575,8 +1548,6 @@ def p_seen_end_array(p):
   print(left_operand)
   print(middle)
 
-
-  #result_Type = CuboSem.CuboSemantico[left_Type][result_Type][operator]
   global quads
   global availTemp
   global DiTemp
@@ -1584,9 +1555,7 @@ def p_seen_end_array(p):
   aux = "t" + str(availTemp)
   availTemp = availTemp + 1
   memPos = AVAIL(context,left_Type,1,0)
-  #print("ME REGRESO LA MEMORIA> ", memPos)
   DiTemp[aux] = memPos
-  #print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
   quad = generate_Quad(51,middle,left_operand,memPos)
   quads = quads + [quad]
   PilaO = PilaO + [memPos]
@@ -2199,13 +2168,11 @@ def quadParamChecker(itemToCheck):
       key = 0
       for k, v in DiConst.items():
         if itemToCheck == v or isinstance(v, list) and itemToCheck in v:
-          #print("mi key es -> ", k)
           addToDict = False
           key = k
 
       if addToDict:
         memPos = AVAIL("",cteType,0,1)
-        #print("ME REGRESO LA MEMORIA> ", memPos)
         aux = GlobalConst + str(incrementalNumberConst)
         incrementalNumberConst = incrementalNumberConst + 1
         DiConst[aux]=[itemToCheck,memPos]
@@ -2214,13 +2181,11 @@ def quadParamChecker(itemToCheck):
       itemToCheck = DiConst[key][1]
 
   elif itemToCheck != "--" and itemToCheck != "":
-    #print("ITEMTOCHECK ->", itemToCheck)
     key = 0
     consOrVar = ""
     isInDic = False
     for k, v in DiVars.items():
       if itemToCheck == v or isinstance(v, list) and itemToCheck in v:
-        #print("mi key es -> ", k)
         isInDic = True
         consOrVar = "var"
         key = k   

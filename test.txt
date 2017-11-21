@@ -1,57 +1,32 @@
-
 program prueba : 
-var int inUno; 
-var int inTres;
- 
-	var float[5] arr;
-	var float r2D2;
-	var int[5] pex;
-	var bool siempre;
 
-var string cosa;
+var int[5] pex;
+var float[3][3] mat;
 
-
-recipe int fibo(int equis){ 
-	var int aux;
-	var int aux2;
-	if (equis == 1 || equis == 0){
-		return(1); 
-	}
-	else{
-		aux = _fibo(equis - 1);
-		aux2 = _fibo(equis - 2);	
+recipe int facto(int num){
+	var int fact;
+	var int cont;
+	num = 6;
+	fact = 1;
+	cont = 1;
+	repeat(num >= cont){
+		fact = fact * cont ;
+		cont = cont +1;	
 	};
-	return(aux + aux2); 
-};
-	
+	return (fact);
 
-
-
+};	
 
 confectionary(){
-	var int myVar;
-	var int newVar;
-	var string newString;
-	var bool cierto;
-
-	inUno = 3;
-	cierto = yes;
-
-	if(cierto == yes){
-		show("Sal2");
-	};
-
-	pex[3] = 5+5;
-
-	pex[3] = _fibo(7);
-	show(pex[3]);
+	var int res;
+	res= 20;
 	
-	flavor(200,100,20);
+	pex[res] = 10;
+	mat[2][2] = 10.5;
+	show(_mat[2][2]);
+	if (1 == 10){show("hols");};
+	show(_pex[3]);
+	
+	show(res);
 
-
-	ration(5);
-	
-	drawCane(50,50,30,30);	
-	
-	
 }

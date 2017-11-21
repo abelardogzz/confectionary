@@ -53,7 +53,7 @@ def click_ok():
 def LoadProgram():
     #global codigo
     #txt = self.codigo
-    print("Cargando PRograma")
+    #print("Cargando PRograma")
 
     programa = codigo.get("1.0",'end-1c')
     #print(programa)
@@ -72,8 +72,10 @@ def printLog(t):
 def CompilaProg():
     consola.delete("1.0","end")
     command = "hola.bat"
+    #Ejecuta el commando que contiene yacc.py y lo deja en stdout local
     program = subprocess.run(command,stdout=subprocess.PIPE)
-    resultado = str(program.stdout[-25:])
+    resultado = str(program.stdout[0:-2])
+    #Analiza si en el resultado se encuentra la aprovacion de lex y yacc y sem
     if "Program Approved" in resultado:
         lblAviso['text'] = "Succesfull build"
         consola.insert("1.0","Succesfull Build")
@@ -117,24 +119,38 @@ def EjecutarPrograma():
     global quads
     global pc
     global t
+    global iDic
+    global sDic
+    global bDic
+    global fDic
     t.shape("turtle")
     t.screen.colormode(255)
     t.up()
-    #t.circle(80)
-    #t.screen.mainloop()
+    #Limpiado de variables para nueva ejecucion
     pc = 0
     quads.clear()
+    iDic.clear()
+    fDic.clear()
+    bDic.clear()
+    sDic.clear()
+
+    #Limpia el contenido de la consola
     consola.delete("1.0","end")
 
     const = False
-    print("ejecutando programa")
-    arch = open("res.txt","r")
+    #print("ejecutando programa")
+    try:
+        arch = open("res.txt","r+")
+    except FileNotFoundError:
+        consola.insert("1.0","Programa vacio")
+        return
     #Agrega el priemr goto
     quad = arch.readline()
+        
     quad = ChangeQuad(quad)
     quads.append(quad)
 
-    #Carga los quads de Modulos y ejecucion
+    #Carga los quads de ejecucion
     while(True):
         quad = arch.readline()
         if quad == "%%\n":
@@ -143,17 +159,15 @@ def EjecutarPrograma():
         quads.append(quad)
         #print(quad)
     
-        #Carga las constantes
+    #Carga las constantes
     quad = arch.readline()
     while( quad != ''):
         LoadConst(quad)
         quad = arch.readline()
-        #print(quad)
+
     
     
     arch.close()
-    #print(quads)
-    print("ACABE DE CARGAR")
     #Despues de cargar todos los quads y sus constantes continua el programa
     IniciaEjecucion()
     pass
@@ -183,7 +197,7 @@ def IniciaEjecucion():
 
 
     auxCoords = []
-    print("inicia EJECUCION")
+    #print("inicia EJECUCION")
     
     quadEnNum = GetOperands(quads[pc])
     #op = quadEnNum[3] - 1
@@ -308,12 +322,13 @@ def IniciaEjecucion():
         #Aumenta el Program Counter
         pc = pc + 1  
 
-    #print("Se acabo EL PROGRAMA WUUU")
+    print("Ejecucion Terminada")
     printLog("Ejecucion Terminada")
     pass
 
 def VerificaArr(dirIndice,dirLB,dirUB):
     global quads
+    global pc
     pos = SacaValorDict(dirIndice)
     LB = SacaValorDict(dirLB)
     UB = SacaValorDict(dirUB)
@@ -343,6 +358,7 @@ def CargaERA(tam):
     global LocalMemDic
     global dirMemLocal #20000
 
+    #Establece la cantidad de memoria que va a ocupar la funcion
     EspacioMemoriaLocal = tam
 
 
@@ -358,18 +374,13 @@ def AcabaLlamadaAFunc(dirGlobal=None ,dirRet=None):
         val = SacaValorDict(dirRet) #Valor de retorno de una funcion
         #Necesito la DIR GLOBAL DE LA FUNCION
         AgregaValorDict(dirGlobal,val) 
-        #AgregaValorDict(dirRet,val) #Lo vuelve a agregar a Local
 
     LocalMemDic.clear()
     pc = pcTemps.pop()
     #Checar si ya es regreso a Ejecucion Principal
     if len(pcTemps) > 0: #Aun queda otra FuncionIncompleta
         LocalMemDic = MemLocalDormida.pop()
-    #try:
-    #    LocalMemDic = MemLocalDormida.pop()
-    #except IndexError:
-    #    print("Se acaboaron las funcalls")
-        #EspacioMemoriaLocal = 0
+
 
 
     pass
@@ -389,21 +400,22 @@ def CargaParamsYVariables(salto):
         MemLocalDormida.append(aux)
         LocalMemDic = {}
         dirMemLocal = 20000
-
+    
+    #Carga en MemLocal los parametros en sus direcciones correspondientes
     while EspacioMemoriaLocal >0:
-        if len(arrParams) > 0:
+        if len(arrParams) > 0: #Agrega los valores segun se mandaron en los quads
             #print("dCarga Params")
             LocalMemDic[dirMemLocal] =  arrParams.pop()
             dirMemLocal = dirMemLocal + 1
         else:
-            #print("Carga espacios para memoria local")
+            #El resto del tamaño se define como vacio
             LocalMemDic[dirMemLocal] = None
             dirMemLocal = dirMemLocal + 1
 
         EspacioMemoriaLocal = EspacioMemoriaLocal -1
 
     dirMemLocal = 20000
-    #Carga la direccion de regreso
+    #Guarda la direccion de regreso
     pcTemps.append(pc)
     arrParams.clear()
     #Se resta porque despue en IniciaEjecucion se le suma uno
@@ -437,12 +449,14 @@ def Divide(dirA,dirB,dirRes):
 
 def GotoV(checa,NewPC):
     global pc
+    #Si el valor es verdadero salta
     checa = bDic[checa]
     if checa:
         pc = NewPC - 1
     pass
 def GotoF(checa, NewPC):
     global pc
+    #Si el valor es falso, salta
     checa = bDic[checa]
     if not checa:
         pc = NewPC - 1
@@ -506,11 +520,12 @@ def Muestra(dir):
         SumaBaseArr = False
 
     val = SacaValorDict(dir)
-    print(val)
+    #print(val)
     printLog(val)
     pass
 def Sabroso(dirR,dirG,dirB):
     global t 
+    #Recibe los calores y los cambia en las variables globales de turtle
     r = SacaValorDict(dirR)
     g = SacaValorDict(dirG)
     b = SacaValorDict(dirB)
@@ -583,6 +598,7 @@ def Lee():
 
 
 #Agrega en un valor en la direccion que se provee como argumentos
+#Utilizando los dicionarios, en caso de no estar definido el espacio se creay guarda
 def AgregaValorDict(dir,valor):
     global iDic
     global fDic
@@ -597,7 +613,8 @@ def AgregaValorDict(dir,valor):
         fDic[dir] = float(valor)
     #Checa si es String
     if dir>= 15000 and dir< 17500  or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
-        valor = valor[2:-2]
+        if dir not in sDic.keys():
+            valor = valor[1:-1]
         sDic[dir] = valor
     #Checa si es booleano
     if dir>= 17500 and dir< 20000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
@@ -643,8 +660,6 @@ def SacaValorDict(dir):
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return 0
-                #pc = len(quads)
-                #exit()
     #Checa si es flotante para regresarlo
     if dir>= 12500 and dir< 15000 or dir>= 22500 and dir< 25000 or dir>= 32500 and dir< 35000 or dir>= 42500 and dir< 45000:
         try:
@@ -656,8 +671,6 @@ def SacaValorDict(dir):
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return 0.0
-                #pc = len(quads)
-                #exit()
     #Checa si es String para regresarlo
     if dir>= 15000 and dir< 17500 or dir>= 25000 and dir< 27500 or dir>= 35000 and dir< 37500 or dir>= 45000 and dir< 47500:
         try:
@@ -669,8 +682,6 @@ def SacaValorDict(dir):
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return ""
-                #pc = len(quads)
-                #exit()
     #Checa si es booleano para regresarlo
     if dir>= 17500 and dir< 20000 or dir>= 27500 and dir< 30000 or dir>= 37500 and dir< 40000 or dir>= 47500 and dir< 50000:
         try:
@@ -682,8 +693,6 @@ def SacaValorDict(dir):
                 print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return False
-                #pc = len(quads)
-                #exit()
  
 root = tk.Tk()
 #app = App(root)
@@ -699,10 +708,6 @@ consola.pack(side="bottom")
 codigo = tk.scrolledtext.ScrolledText(dialog_frame)
 codigo.pack(side="bottom")
 
-
-
-
-
 tk.Button(dialog_frame,text='Compilar',command = LoadProgram).pack(side="top")
 #Carga el programa desde el ultimo que se corrio
 arch = open("test.txt","r")
@@ -716,8 +721,6 @@ lblAviso = tk.Label(dialog_frame,text="Resultados de compilacion")
 lblAviso.pack(side="left")
 #BTN de cierre
 tk.Button(dialog_frame, text="Cerrar", command=quit).pack(side="right")
-#printLog("hola")
-#printLog("Prueba")
 
 
 root.mainloop()
