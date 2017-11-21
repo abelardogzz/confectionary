@@ -6,7 +6,7 @@ from lex import tokens
 
 DEBUG = True
 
-#17 nov 17 v.2
+#v.milochomil
 #from enum import Enum
 #class Types(Enum):
 #    INT = 0
@@ -41,6 +41,8 @@ DEBUG = True
 # 42-GOSUB
 # 43-ENDPROC
 # 44-RETURN 
+# 50-VERARR
+# 51-SUMABASE
 
 
 
@@ -631,8 +633,6 @@ def p_bigrid(p):
             matrixContent = [p[1]] + matrixContent
         elif len(p) > 1:
             matrixContent = [p[1]] +  matrixContent
-        else:
-            print("what?")
         p[0] = matrixContent;
     else:
         p[0] = "empty";
@@ -705,8 +705,6 @@ def p_bfgrid(p):
             matrixContent = [p[1]] + matrixContent
         elif len(p) > 1:
             matrixContent = [p[1]] +  matrixContent
-        else:
-            print("what?")
         p[0] = matrixContent;
     else:
         p[0] = "empty";
@@ -775,8 +773,6 @@ def p_bsgrid(p):
             matrixContent = [p[1]] + matrixContent
         elif len(p) > 1:
             matrixContent = [p[1]] +  matrixContent
-        else:
-            print("what?")
         p[0] = matrixContent;
     else:
         p[0] = "empty";
@@ -913,8 +909,6 @@ def p_bfshelf(p):
             arrayContent = [p[1]] + arrayContent
         elif len(p) > 1:
             arrayContent = [p[1]] +  arrayContent
-        else:
-            print("what?")
         p[0] = arrayContent;
     else:
         p[0] = "empty";
@@ -1168,6 +1162,7 @@ def p_seen_exp_in_params(p):
     #print("param type - ", paramType)
     localParamType = TypeStack.pop()
     argument = PilaO.pop()
+    existance_checker(argument)
     if moduleParamType != localParamType:
       print("Type mismatch in parameter ", auxCont + 1, " in function ", DiModules[globalk][0])
       exit(0)
@@ -1189,18 +1184,76 @@ def p_ass_prima(p):
   | exp ";" seen_pn_assign '''
   pass
 
+
+def p_seen_pn_funcall_assign_array(p):
+  '''seen_pn_funcall_assign_array :'''
+  if len(POper) != 0:
+      if POper[-1] == '=':
+
+        idName = p[-1]
+        #print("IDNAME->",idName)
+        key = ""
+        for k, v in DiVars.items():
+            if idName == v or isinstance(v, list) and idName in v:
+              if DiVars[k][0] == idName and (DiVars[k][3] == context or DiVars[k][3] == "global"):
+                key = k
+                #print("KEY->",key)
+
+        result = DiVars[key][4]
+        resultfun_type = DiVars[key][2]
+
+        middle = PilaO.pop()
+        middle_type = TypeStack.pop()
+
+        left_operand = PilaO.pop()
+        left_Type = TypeStack.pop()
+
+        operator = POper.pop()
+        operator = 4
+
+        result_Type = CuboSem.CuboSemantico[left_Type][resultfun_type][operator]
+
+        
+        global quads
+        global availTemp
+        global DiTemp
+        if result_Type != 99:
+
+            aux = "t" + str(availTemp)
+            availTemp = availTemp + 1
+            memPos = AVAIL(context,left_Type,1,0)
+            #print("ME REGRESO LA MEMORIA> ", memPos)
+            DiTemp[aux] = memPos
+            #print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
+            quad = generate_Quad(51,left_operand,middle,memPos)
+
+            quads = quads + [quad]
+            #quad = [operator, left_operand , ""  , result ]
+            #result = 
+            #print("Lo que envio en ass->", operator, left_operand, "", result)
+            quad = generate_Quad(operator, "", "", memPos)
+            quad[1] = result
+            #print("aquipapu! ->",middle )
+            #print("El nuevo quad !***->", quad)
+            quads = quads + [quad]
+        else:
+            type_mismatch_error()
+  pass
+
 def p_seen_pn_funcall_assign(p):
   '''seen_pn_funcall_assign :'''
   global PilaO
+  global context
   global TypeStack
   idName = p[-1]
   #print("IDNAME->",idName)
   key = ""
   for k, v in DiVars.items():
       if idName == v or isinstance(v, list) and idName in v:
-        if DiVars[k][0] == idName:
+        if DiVars[k][0] == idName and (DiVars[k][3] == context or DiVars[k][3] == "global"):
           key = k
           #print("KEY->",key)
+
 
   result = DiVars[key][4]
   resultfun_type = DiVars[key][2]
@@ -1217,10 +1270,10 @@ def p_seen_pn_funcall_assign(p):
       #quad = [operator, left_operand , ""  , result ]
       #print("Lo que envio en ass->", operator, left_operand, "", result)
       quad = generate_Quad(operator, "", "", left_operand)
-      print("r:",result)
-      print("lo:",left_operand)
+      #print("r:",result)
+      #print("lo:",left_operand)
       quad[1] = result
-      print("El nuevo quad ->", quad)
+      #print("El nuevo quad ->", quad)
       quads = quads + [quad]
   else:
       type_mismatch_error()
@@ -1233,34 +1286,19 @@ def p_ass3(p):
 
 def p_ass3_prima(p):
   '''ass3_prima : exp ";" seen_pn_assign_array
-  | funccall seen_pn_funcall_assign'''
+  | funccall seen_pn_funcall_assign_array'''
   #| funccall seen_pn_assign_array'''
   pass
 
 def p_ass3_prima_prima(p):
   '''ass3_prima_prima : seen_access_array "=" ass3_prima
-  | "[" exp "]"  "=" exp ";" '''
+  | seen_access_matrix_first "[" exp "]" seen_second_matrix_access "=" ass3_prima '''
   pass
 
 def p_array_ass_right(p):
   '''array_ass_right : ID "[" seen_pn_ass_id_arr exp "]" ";" seen_pn_assign'''
   pass
 
-"""def p_seen_ok1(p):
-  '''seen_ok1 :'''
-  print("seen_ok1")
-  pass
-
-def p_seen_ok2(p):
-  '''seen_ok2 :'''
-  print("seen_ok2")
-  pass
-
-def p_seen_ok3(p):
-  '''seen_ok3 :'''
-  print("seen_ok3")
-  pass
-"""
 
 def p_seen_access_array(p):
   '''seen_access_array :'''
@@ -1280,7 +1318,7 @@ def p_seen_access_array(p):
    # print("Array index out of bounds!")
     #exit(0)
 
-  quad = generate_Quad("VerArr",result,0,upperLimit)
+  quad = generate_Quad(50,result,0,upperLimit)
   quads = quads + [quad]
   #print("upperLimit->", upperLimit)
   #print("This is the key! -> ", key)
@@ -1290,6 +1328,87 @@ def p_seen_access_array(p):
   TypeStack = TypeStack + [result_type]
 
   #if
+
+  pass
+
+
+def p_seen_second_matrix_access(p):
+  '''seen_second_matrix_access :'''
+  global PilaO
+  global TypeStack
+  global DiVars
+  global quads
+  result = PilaO.pop()
+  result_type = TypeStack.pop()
+  key = p[-7]
+  if result_type != 0:
+    print("Array index must be int!")
+    exit(0)
+  upperLimit = DiVars[key][6][1]
+  quad = generate_Quad(50,result,0,upperLimit)
+  quads = quads + [quad]
+
+  global availTemp
+  global DiTemp
+  aux = "t" + str(availTemp)
+  availTemp = availTemp + 1
+  memPos = AVAIL(context,0,1,0)
+  DiTemp[aux] = memPos
+
+  left_operand = PilaO.pop()
+  left_Type = TypeStack.pop()
+  quad2= generate_Quad(0,result,left_operand,memPos)
+  quads = quads + [quad2]
+
+  PilaO = PilaO + [memPos]
+  TypeStack = TypeStack + [0]
+
+
+
+
+  pass
+
+
+####################
+def p_seen_access_matrix_first(p):
+  '''seen_access_matrix_first :'''
+  global PilaO
+  global TypeStack
+  global DiVars
+  global quads
+  #Primera parte de los quads, el de ver
+  result = PilaO.pop()
+  result_type = TypeStack.pop()
+  key = p[-3]
+  if result_type != 0:
+    print("Array index must be int!")
+    exit(0)
+  upperLimit = DiVars[key][5][1]
+
+  quad = generate_Quad(50,result,0,upperLimit)
+  quads = quads + [quad]
+
+  result = quad[1]
+  p[0] = result
+  #PilaO = PilaO + [result]
+  #TypeStack = TypeStack + [result_type]
+  #Segunda parte de los quads, el de multiplicar por la dim
+  dim1 = upperLimit = DiVars[key][7]
+
+
+  global availTemp
+  global DiTemp
+  aux = "t" + str(availTemp)
+  availTemp = availTemp + 1
+  memPos = AVAIL(context,0,1,0)
+  DiTemp[aux] = memPos
+
+  quad2 = generate_Quad(2,result,dim1,memPos)
+  quads = quads + [quad2]
+  #Tercera parte, meter a las pilas el temporal y el tipo
+  PilaO = PilaO + [memPos]
+  TypeStack = TypeStack + [0]
+##################
 
   pass
 
@@ -1388,7 +1507,7 @@ def p_seen_pn_assign_array(p):
               #print("ME REGRESO LA MEMORIA> ", memPos)
               DiTemp[aux] = memPos
               #print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
-              quad = generate_Quad("SumaBase",result,middle,memPos)
+              quad = generate_Quad(51,result,middle,memPos)
               quads = quads + [quad]
               #quad = [operator, left_operand , ""  , result ]
               #result = 
@@ -1436,35 +1555,61 @@ def p_seen_pn_assign(p):
 
 
 def p_write(p):
-    '''write :     SHOW "(" exp seen_pn_show bwrite ")" ";" '''
+    '''write : SHOW "(" exp seen_pn_show bwrite ")" ";" 
+    | SHOW "(" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_array seen_end_array seen_pn_show bwrite ")" ";"
+    | SHOW "(" ID "[" seen_pn_ass_id_arr exp "]"  seen_access_matrix_first "[" exp "]" seen_second_matrix_access seen_end_array seen_pn_show bwrite ")" ";"'''
     #print("write");
     pass
+
+def p_seen_end_array(p):
+  '''seen_end_array :'''
+  global PilaO
+  global TypeStack
+  left_operand = PilaO.pop()
+  #print("LEFT_OPERAND->",left_operand)
+  left_Type = TypeStack.pop()
+  middle = PilaO.pop()
+  middle_type = TypeStack.pop()
+  operator = POper.pop()
+  operator = 4
+  print(left_operand)
+  print(middle)
+
+
+  #result_Type = CuboSem.CuboSemantico[left_Type][result_Type][operator]
+  global quads
+  global availTemp
+  global DiTemp
+
+  aux = "t" + str(availTemp)
+  availTemp = availTemp + 1
+  memPos = AVAIL(context,left_Type,1,0)
+  #print("ME REGRESO LA MEMORIA> ", memPos)
+  DiTemp[aux] = memPos
+  #print("Lo que envio en ass-1>", "sumabase", result, middle, memPos)
+  quad = generate_Quad(51,middle,left_operand,memPos)
+  quads = quads + [quad]
+  PilaO = PilaO + [memPos]
+  TypeStack = TypeStack + [0]
+  pass
 
 def p_seen_pn_show(p):
     '''seen_pn_show : '''
     global availTemp
     global quads
     global DiTemp
-    #Se tiene que hacer un pop para sacar lo que se obtiene, porque estan el pilaO
-    #Se puede usar el type para futuro uso del print
-    #siendo exp entiende el (+) como suma, no como mas argumentos
     global TypeStack
     global PilaO
     left_operand = PilaO.pop()
     left_Type = TypeStack.pop()
-    #print("DATOSssss",left_operand,left_Type)
     aux = "t" + str(availTemp)
     availTemp = availTemp + 1
     memPos = AVAIL(context,left_Type,1,0)
-    #print("ME REGRESO LA MEMORIA> ", memPos)
     DiTemp[aux] = memPos
-    #print("SHOW LEFT OP ->", left_operand)
     quad = generate_Quad(30,left_operand,"--",memPos)
-
-    #quad = ["show",left_operand,"--",memPos]
     quads = quads + [quad]
     pass
-#Con coma, pues jala bien
+
 def p_bwrite(p):
     '''bwrite : "," exp seen_pn_show bwrite
   | empty '''
@@ -1561,8 +1706,10 @@ def p_seen_pn_term(p):
             global quads
             global DiTemp
             right_operand = PilaO.pop()
+            existance_checker(right_operand)
             right_Type = TypeStack.pop()
             left_operand = PilaO.pop()
+            existance_checker(left_operand)
             left_Type = TypeStack.pop()
             operator = POper.pop()
             resultType = CuboSem.CuboSemantico[left_Type][right_Type][operator]
@@ -1614,9 +1761,12 @@ def p_seen_pn_factor(p):
             global availTemp
             global quads
             global DiTemp
+            global context
             right_operand = PilaO.pop()
+            existance_checker(right_operand)
             right_Type = TypeStack.pop()
             left_operand = PilaO.pop()
+            existance_checker(left_operand)
             left_Type = TypeStack.pop()
             operator = POper.pop()
 
@@ -1794,12 +1944,11 @@ def p_seen_pn_add_ctevar(p):
         addToPilaO = False
         for k, v in DiVars.items():
             if idName == v or isinstance(v, list) and idName in v:
-                addToPilaO = True
-                #print("popoiu +" , addToPilaO)
-                #print("deberia meterlo a la pila")
+              if idName == DiVars[k][0]:
                 varContext = DiVars[k][3]
                 if varContext == context or varContext == "global":
                     #print("deberia meterlo a la pila")
+                    addToPilaO = True
                     PilaO =  PilaO + [idName]
                     
                     TypeStack =  TypeStack + [DiVars[k][2]] 
@@ -1901,15 +2050,15 @@ def p_error(p):
 
 def repeated_var_error(var_name):
     print("Variable " + var_name + " is repeated!")
-    #exit()
+    exit(0)
 
 def repeated_fun_error(fun_name):
     print("Function "+ fun_name+ " is repeated!")
-    #exit()
+    exit(0)
 
 def missing_variable(var_name):
     print("Variable " +var_name+ " is not defined!")
-    exit()
+    exit(0)
 
 def type_mismatch_error():
     print("Type mismatch!")
@@ -2092,11 +2241,53 @@ def quadParamChecker(itemToCheck):
       print("Var ", itemToCheck, " is not defined! Please define it!")
       exit(0)
 
-
       
     #itemToCheck = DiVars[key][3]
   #print("yo soy -> ", itemToCheck)
   return itemToCheck
+
+
+def existance_checker(itemToCheck):
+  global context
+  key = 0
+  consOrVar = ""
+  isInDic = False
+  temp = False
+  for k, v in DiTemp.items():
+    if itemToCheck == v or isinstance(v, list) and itemToCheck in v:
+      #print("mi key es -> ", k)
+      temp = True
+
+  if not temp: 
+    for k, v in DiVars.items():
+      if itemToCheck == v or isinstance(v, list) and itemToCheck in v:
+        if DiVars[k][0] == itemToCheck:
+          #print("mi key es -> ", k)
+          isInDic = True
+          consOrVar = "var"
+          key = k
+        
+
+    if not isInDic:
+      for k, v in DiConst.items():
+        if itemToCheck == v or isinstance(v, list) and itemToCheck in v:
+          #print("mi key es -> ", k)
+          consOrVar = "cons"
+          isInDic = True
+          key = k 
+
+    if consOrVar == "var":
+      itemToCheck = DiVars[key][0]
+      if DiVars[key][3] != context and DiVars[key][3] != "global":
+          print("Var ", itemToCheck, " is not defined in this context! Please define it!")
+          exit(0)
+    elif consOrVar == "cons":
+      itemToCheck = DiConst[key][1]
+    else: 
+      print("Var ", itemToCheck, " is not defined! Please define it!")
+      exit(0) 
+
+
 
 
 def separateArrayMem(context,lim_sup,arrType):

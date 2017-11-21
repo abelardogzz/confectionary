@@ -2,6 +2,7 @@ import tkinter as tk
 import subprocess
 import turtle
 from time import sleep
+from tkinter import scrolledtext
 
 
 
@@ -13,6 +14,7 @@ EspacioMemoriaLocal = 0
 DirMemoriaLocalLibre = 0
 arrParams = []
 InFuncall = False
+SumaBaseArr = False
 #Program Counter Temp
 pcTemps =[]
 #Dictionaries
@@ -54,7 +56,7 @@ def LoadProgram():
     print("Cargando PRograma")
 
     programa = codigo.get("1.0",'end-1c')
-    print(programa)
+    #print(programa)
     arch = open("test.txt","w")
     arch.write(programa)
     arch.close()
@@ -68,15 +70,16 @@ def printLog(t):
     
 #Llama a yacc para procesar el archivo de ejecucion
 def CompilaProg():
-    lblAviso['text'] = ""
+    consola.delete("1.0","end")
     command = "hola.bat"
     program = subprocess.run(command,stdout=subprocess.PIPE)
     resultado = str(program.stdout[-25:])
     if "Program Approved" in resultado:
         lblAviso['text'] = "Succesfull build"
+        consola.insert("1.0","Succesfull Build")
     else:
         lblAviso['text'] = resultado
-    #print( program.stdout)
+    print( program.stdout)
     #print(text)
     pass
 
@@ -169,14 +172,6 @@ def getInt(i):
         i = -1
     return i
 
-def LoadModulos(PCmain):
-    global quads
-    i=1
-    while i<PCmain:
-        print(quads[i])
-        i = i +1
-
-    pass
 
 def IniciaEjecucion():
     global pc
@@ -184,6 +179,7 @@ def IniciaEjecucion():
     global InFuncall
     global arrParams
     global EspacioMemoriaLocal
+    global SumaBaseArr
 
 
     auxCoords = []
@@ -192,7 +188,7 @@ def IniciaEjecucion():
     quadEnNum = GetOperands(quads[pc])
     #op = quadEnNum[3] - 1
     #Carga las funciones
-    LoadModulos(quadEnNum[3]-1)
+    #LoadModulos(quadEnNum[3]-1)
 
     while( pc < len(quads)):
 
@@ -217,52 +213,52 @@ def IniciaEjecucion():
             #print("assign")
             Assigna(quadEnNum[1],quadEnNum[3])
         elif op == 5: #==
-            print("IGUALGUAL")
+            #print("IGUALGUAL")
             IgualÍgual(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 6 : #!=
-            print("Diferente")
+            #print("Diferente")
             IgualDiferente(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 7 : #>
-            print("mayor khe")
+            #print("mayor khe")
             MayorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 8 : #<
-            print("meno khe")
+            #print("meno khe")
             MenorQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 9 : #>=
-            print(" mayor Igual khe")
+            #print(" mayor Igual khe")
             MayorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 10: #<=
-            print(" menor Igual khe")
+            #print(" menor Igual khe")
             MenorIgualQue(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 11: #OR
-            print("OR ")
+            #print("OR ")
             RelacionOR(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 12: #AND
-            print("AND ")
+            #print("AND ")
             RelacionAND(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 25: #Goto
-            print("GotO")
+            #print("GotO")
             pc = quadEnNum[3]-1
         elif op == 26: #GotoV
-            print("GotoV")
+            #print("GotoV")
             GotoV(quadEnNum[1],quadEnNum[3])
         elif op == 27: #GotoF
-            print("GotoF")
+            #print("GotoF")
             GotoF(quadEnNum[1],quadEnNum[3])
         elif op == 30: #show 
-            print("show")
+            #print("show")
             Muestra(quadEnNum[1])
         elif op == 31: #Flavour
-            print("flavour")
+            #print("flavour")
             Sabroso(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 32: #ration
-            print("Ratio")
+            #print("Ratio")
             Racion(quadEnNum[1])
         elif op == 33: #DRWCUP
-            print("drwCup")
+            #print("drwCup")
             DibujaPastel(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 34: #DRWCane
-            print("drwCane")
+            #print("drwCane")
             if len(auxCoords) == 2:
                 DibujaLinea(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
                 auxCoords.clear()
@@ -270,7 +266,7 @@ def IniciaEjecucion():
                 auxCoords.append(quadEnNum[1])
                 auxCoords.append(quadEnNum[2])
         elif op == 35: #DRWChoc
-            print("drwChoc")
+            #print("drwChoc")
             if len(auxCoords) == 2:
                 DibujaBarra(auxCoords[0],auxCoords[1],quadEnNum[1],quadEnNum[2])
                 auxCoords.clear()
@@ -280,34 +276,57 @@ def IniciaEjecucion():
         elif op == 36: #READ
             print("read")
         elif op == 40: #param
-            print("PARAM")
+            #print("PARAM")
             CargaParam(quadEnNum[1])
             #arrParams.append(quadEnNum[1])
-
         elif op == 41: #ERA
-            print("ERA")
+            #print("ERA")
             InFuncall = True
             #Checar los pcTemps para ver de donde es la llamada
             CargaERA( quadEnNum[2])
 
         elif op == 42: #GOSUB
-            print("GOsub")
+            #print("GOsub")
             CargaParamsYVariables(quadEnNum[2])
         elif op == 43: #ENDPROC
-            print("ENDPROC")
+            #print("ENDPROC")
             InFuncall = False
             #pc = pcTemps.pop()
             AcabaLlamadaAFunc()
         elif op == 44: #return
-            print("RETooN")
+            #print("RETooN")
             InFuncall = False
             AcabaLlamadaAFunc(quadEnNum[3],quadEnNum[1])
+        elif op == 50:
+            print("VerArr")
+            VerificaArr(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+        elif op == 51:
+            print("SumaBase")
+            SumaBase(quadEnNum[1],quadEnNum[2],quadEnNum[3])
+            SumaBaseArr = True
 
         #Aumenta el Program Counter
         pc = pc + 1  
 
-    print("Se acabo EL PROGRAMA WUUU")
+    #print("Se acabo EL PROGRAMA WUUU")
     printLog("Ejecucion Terminada")
+    pass
+
+def VerificaArr(dirIndice,dirLB,dirUB):
+    global quads
+    pos = SacaValorDict(dirIndice)
+    LB = SacaValorDict(dirLB)
+    UB = SacaValorDict(dirUB)
+
+    if pos< LB or pos> UB:
+        pc = len(quads)
+        printLog("Index out of range")
+
+    pass
+def SumaBase(base,dirIndice,dirRes):
+    pos = SacaValorDict(dirIndice)
+    pos = base + pos
+    AgregaValorDict(dirRes,pos) #Agrega la direccion en la temporal de suma
     pass
 
 def CargaParam(p):
@@ -373,11 +392,11 @@ def CargaParamsYVariables(salto):
 
     while EspacioMemoriaLocal >0:
         if len(arrParams) > 0:
-            print("dCarga Params")
+            #print("dCarga Params")
             LocalMemDic[dirMemLocal] =  arrParams.pop()
             dirMemLocal = dirMemLocal + 1
         else:
-            print("Carga espacios para memoria local")
+            #print("Carga espacios para memoria local")
             LocalMemDic[dirMemLocal] = None
             dirMemLocal = dirMemLocal + 1
 
@@ -430,9 +449,14 @@ def GotoF(checa, NewPC):
     pass
 
 def Assigna(dirA,dirRes):
+    global SumaBaseArr
+    if SumaBaseArr:
+        dirRes = SacaValorDict(dirRes)
+        SumaBaseArr = False
+
     res = SacaValorDict(dirA)
     AgregaValorDict(dirRes,res)
-    print("Assigna----->",res)
+    print("Assigna----->",res,dirRes)
     pass
 def IgualÍgual(dirA,dirB,dirRes):
     a = SacaValorDict(dirA)
@@ -476,6 +500,11 @@ def RelacionAND(dirA,dirB,dirRes):
     pass
 
 def Muestra(dir):
+    global SumaBaseArr
+    if SumaBaseArr:
+        dir = SacaValorDict(dir)
+        SumaBaseArr = False
+
     val = SacaValorDict(dir)
     print(val)
     printLog(val)
@@ -662,10 +691,16 @@ root.title("Program FOOD")
 dialog_frame = tk.Frame(root)
 dialog_frame.pack()
 #Area de codigo
+
+
 consola = tk.Text(dialog_frame,height = 5)
 consola.pack(side="bottom")
-codigo = tk.Text(dialog_frame)
+#codigo = tk.Text(dialog_frame)
+codigo = tk.scrolledtext.ScrolledText(dialog_frame)
 codigo.pack(side="bottom")
+
+
+
 
 
 tk.Button(dialog_frame,text='Compilar',command = LoadProgram).pack(side="top")

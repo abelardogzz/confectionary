@@ -5,21 +5,11 @@ var int inTres;
  
 	var float[5] arr;
 	var float r2D2;
-	var int[3] pex;
+	var int[5] pex;
 	var bool siempre;
 
 var string cosa;
-recipe int funcionPrueba(int name){ 
-	var int aux;
-	if (name == 1 || name == 0){
-		return(1); 
-	}
-	else{
-		aux = _funcionPrueba(name - 1);
-		
-	};
-	return(name * aux); 
-};
+
 
 recipe int fibo(int equis){ 
 	var int aux;
@@ -35,18 +25,8 @@ recipe int fibo(int equis){
 };
 	
 
-recipe int funcionDos(int param1, int name, int anotherNmae){ 
-	show("no"); 
-	return(param1+5); 
-};
 
-recipe void funciontres(){  
-	var int inSiete;
-	drawChocoBar(30,25,20,15);
-	show("hola!");
-	inSiete =	_funcionDos(3,2,4);
-	show(inSiete);
- };
+
 
 confectionary(){
 	var int myVar;
@@ -54,30 +34,24 @@ confectionary(){
 	var string newString;
 	var bool cierto;
 
-
-	inTres = 3;
-	r2D2 = 3.4 + (3 + 4);
-	newString = "hola2";
 	inUno = 3;
+	cierto = yes;
+
+	if(cierto == yes){
+		show("Sal2");
+	};
+
+	pex[3] = 5+5;
+
+	pex[3] = _fibo(7);
+	show(pex[3]);
 	
-
-	inUno = _funcionPrueba(5);
-	show("Imprime facto");
-	show(inUno);
-
-	inUno = _fibo(6);
-	show("Imprime fibo");
-	show(inUno);	
-
 	flavor(200,100,20);
 
 
 	ration(5);
 	
 	drawCane(50,50,30,30);	
-	drawCupcake(10,20,20);
-
-	
 	
 	
 }
