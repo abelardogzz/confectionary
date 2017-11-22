@@ -43,12 +43,8 @@ def printDict(d):
     pass
 txt = ""
 if __name__ == '__main__':
-    print("Start")
+    print("")
 
-
-def click_ok():
-    print("Presiona OK")
-    pass
 
 def LoadProgram():
     #global codigo
@@ -56,6 +52,9 @@ def LoadProgram():
     #print("Cargando PRograma")
 
     programa = codigo.get("1.0",'end-1c')
+    if programa == '':
+        consola.insert("1.0","Programa Vacio")
+        return
     #print(programa)
     arch = open("test.txt","w")
     arch.write(programa)
@@ -81,7 +80,7 @@ def CompilaProg():
         consola.insert("1.0","Succesfull Build")
     else:
         lblAviso['text'] = resultado
-    print( program.stdout)
+    #print( program.stdout)
     #print(text)
     pass
 
@@ -146,6 +145,9 @@ def EjecutarPrograma():
         return
     #Agrega el priemr goto
     quad = arch.readline()
+    if quad == '':
+        consola.insert("1.0","No hay Codigo objeto")
+        return
         
     quad = ChangeQuad(quad)
     quads.append(quad)
@@ -287,8 +289,6 @@ def IniciaEjecucion():
             else:
                 auxCoords.append(quadEnNum[1])
                 auxCoords.append(quadEnNum[2])            
-        elif op == 36: #READ
-            print("read")
         elif op == 40: #param
             #print("PARAM")
             CargaParam(quadEnNum[1])
@@ -312,17 +312,17 @@ def IniciaEjecucion():
             InFuncall = False
             AcabaLlamadaAFunc(quadEnNum[3],quadEnNum[1])
         elif op == 50:
-            print("VerArr")
+            #print("VerArr")
             VerificaArr(quadEnNum[1],quadEnNum[2],quadEnNum[3])
         elif op == 51:
-            print("SumaBase")
+            #print("SumaBase")
             SumaBase(quadEnNum[1],quadEnNum[2],quadEnNum[3])
             SumaBaseArr = True
 
         #Aumenta el Program Counter
         pc = pc + 1  
 
-    print("Ejecucion Terminada")
+    #print("Ejecucion Terminada")
     printLog("Ejecucion Terminada")
     pass
 
@@ -470,7 +470,7 @@ def Assigna(dirA,dirRes):
 
     res = SacaValorDict(dirA)
     AgregaValorDict(dirRes,res)
-    print("Assigna----->",res,dirRes)
+    #print("Assigna----->",res,dirRes)
     pass
 def IgualÍgual(dirA,dirB,dirRes):
     a = SacaValorDict(dirA)
@@ -657,7 +657,7 @@ def SacaValorDict(dir):
             try:
                 return LocalMemDic[dir]
             except KeyError:
-                print("Warning: Variable no Inicializada")
+                #print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return 0
     #Checa si es flotante para regresarlo
@@ -679,7 +679,7 @@ def SacaValorDict(dir):
             try:
                 return LocalMemDic[dir]
             except KeyError:
-                print("Warning: Variable no Inicializada")
+                #print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return ""
     #Checa si es booleano para regresarlo
@@ -690,7 +690,7 @@ def SacaValorDict(dir):
             try:
                 return LocalMemDic[dir]
             except KeyError:
-                print("Warning: Variable no Inicializada")
+                #print("Warning: Variable no Inicializada")
                 printLog("Warning: Variable no Inicializada")
                 return False
  
